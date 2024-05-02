@@ -9,7 +9,7 @@ import 'package:admin_simpass/presentation/components/custom_drop_down_menu.dart
 import 'package:admin_simpass/presentation/components/custom_text_input.dart';
 import 'package:admin_simpass/presentation/components/customer_request_details_content.dart';
 import 'package:admin_simpass/presentation/components/customer_request_status_update_content.dart';
-import 'package:admin_simpass/presentation/components/header.dart';
+
 import 'package:admin_simpass/presentation/components/pagination.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -66,7 +66,6 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Header(title: "상담사 개통 문의현황"),
                 const Gap(5),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),

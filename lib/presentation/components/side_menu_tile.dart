@@ -23,56 +23,43 @@ class SideMenuWidget extends StatefulWidget {
 }
 
 class _SideMenuWidgetState extends State<SideMenuWidget> {
-  //changing color when hovered
-  bool _hovering = false;
   @override
   Widget build(BuildContext context) {
-    return Consumer<SideMenuProvider>(
-      builder: (context, sideMenuController, child) => InkWell(
-        onTap: () {
-          if (!sideMenuController.isDesktop) shellScaffoldKey.currentState?.closeDrawer();
-          widget.press();
-        },
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.topLeft,
-          child: MouseRegion(
-            onEnter: (PointerEvent details) {
-              _hovering = true;
-              setState(() {});
-            },
-            onExit: (PointerEvent details) {
-              _hovering = false;
-              setState(() {});
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SvgPicture.asset(
-                    widget.iconSrc,
-                    colorFilter: widget.isSelected || _hovering
-                        ? const ColorFilter.mode(MainUi.mainColor, BlendMode.srcIn)
-                        : const ColorFilter.mode(
-                            Colors.white70,
-                            BlendMode.srcIn,
-                          ),
-                    height: 16,
-                  ),
-                  const SizedBox(width: 15),
-                  Text(
-                    widget.title,
-                    style: TextStyle(
-                      color: widget.isSelected || _hovering ? MainUi.mainColor : Colors.white70,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+    return InkWell(
+      onTap: () {
+        widget.press();
+        shellScaffoldKey.currentState?.closeDrawer();
+      },
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SvgPicture.asset(
+                widget.iconSrc,
+                colorFilter: widget.isSelected
+                    ? const ColorFilter.mode(MainUi.mainColor, BlendMode.srcIn)
+                    : const ColorFilter.mode(
+                        Colors.black87,
+                        BlendMode.srcIn,
+                      ),
+                height: 16,
               ),
-            ),
+              const SizedBox(width: 15),
+              Text(
+                widget.title,
+                style: TextStyle(
+                  color: widget.isSelected ? MainUi.mainColor : Colors.black87,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       ),

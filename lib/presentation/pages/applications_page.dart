@@ -10,7 +10,6 @@ import 'package:admin_simpass/presentation/components/application_status_update_
 import 'package:admin_simpass/presentation/components/custom_alert_dialog.dart';
 import 'package:admin_simpass/presentation/components/custom_drop_down_menu.dart';
 import 'package:admin_simpass/presentation/components/custom_text_input.dart';
-import 'package:admin_simpass/presentation/components/header.dart';
 import 'package:admin_simpass/presentation/components/pagination.dart';
 import 'package:admin_simpass/presentation/components/scroll_image_viewer.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +79,6 @@ class RApplicationsPageState extends State<ApplicationsPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Header(title: "신청서 접수현황"),
                 const Gap(5),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),

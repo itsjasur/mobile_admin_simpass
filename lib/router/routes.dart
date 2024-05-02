@@ -20,7 +20,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/customer-requests',
+  initialLocation: '/profile',
   errorBuilder: (context, state) => const NotFoundPage(),
   routes: [
     GoRoute(

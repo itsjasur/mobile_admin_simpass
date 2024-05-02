@@ -6,7 +6,7 @@ import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/presentation/components/update_add_plan_content.dart';
 import 'package:admin_simpass/presentation/components/custom_alert_dialog.dart';
 import 'package:admin_simpass/presentation/components/custom_text_input.dart';
-import 'package:admin_simpass/presentation/components/header.dart';
+
 import 'package:admin_simpass/presentation/components/plans_filter_content.dart';
 import 'package:admin_simpass/presentation/components/pagination.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +72,6 @@ class _ManagePlansPageState extends State<ManagePlansPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Header(title: "요금제 관리"),
                 const Gap(5),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -459,9 +458,9 @@ class _ManagePlansPageState extends State<ManagePlansPage> {
 
       _plansList.addAll(result.planList);
       _plansInfo = result;
-      _totalCount = result.totalNum;
-      _dataLoading = false;
+      _totalCount = 10;
 
+      _dataLoading = false;
       setState(() {});
     } catch (e) {
       if (mounted) {

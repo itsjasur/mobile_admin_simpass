@@ -137,6 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 30),
                 RichText(
                   text: const TextSpan(
+                    style: TextStyle(color: Colors.black87),
                     children: <TextSpan>[
                       TextSpan(text: 'Copyright © '),
                       TextSpan(

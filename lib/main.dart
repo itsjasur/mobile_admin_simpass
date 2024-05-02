@@ -1,8 +1,9 @@
 import 'package:admin_simpass/globals/global_keys.dart';
+import 'package:admin_simpass/providers/appbar_provider.dart';
 import 'package:admin_simpass/providers/auth_provider.dart';
 import 'package:admin_simpass/providers/myinfo_provider.dart';
 import 'package:admin_simpass/providers/menu_navigation_provider.dart';
-import 'package:admin_simpass/providers/side_menu_provider.dart';
+
 import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/router/routes.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,9 @@ Future<void> main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => AuthServiceProvider()),
-      ChangeNotifierProvider(create: (context) => SideMenuProvider()),
       ChangeNotifierProvider(create: (context) => MyinfoProvifer()),
       ChangeNotifierProvider(create: (context) => MenuIndexProvider()),
+      ChangeNotifierProvider(create: (context) => AppBarProvider()),
     ],
     child: const MyApp(),
   ));
@@ -50,12 +51,11 @@ class MyApp extends StatelessWidget {
       ],
 
       themeMode: ThemeMode.light,
-      darkTheme: ThemeData.dark(), // Optional, ensure this is set properly
+      // darkTheme: ThemeData.dark(), // Optional, ensure this is set properly
 
       theme: ThemeData(
-        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         colorScheme: const ColorScheme.light(
-          // brightness: Brightness.light,
+          brightness: Brightness.light,
           primary: MainUi.mainColor,
           secondary: MainUi.mainColor,
           background: Colors.white,
@@ -94,6 +94,16 @@ class MyApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: Colors.white,
 
+        appBarTheme: const AppBarTheme(
+          surfaceTintColor: Colors.transparent,
+          titleSpacing: 0,
+          titleTextStyle: TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             disabledBackgroundColor: Colors.black38,
@@ -108,8 +118,10 @@ class MyApp extends StatelessWidget {
 
         iconButtonTheme: const IconButtonThemeData(
           style: ButtonStyle(
+            backgroundColor: MaterialStatePropertyAll(Colors.transparent),
+            foregroundColor: MaterialStatePropertyAll(Colors.black87),
+            overlayColor: MaterialStatePropertyAll(Colors.black12),
             visualDensity: VisualDensity.compact,
-            backgroundColor: MaterialStatePropertyAll(Colors.amber),
             padding: MaterialStatePropertyAll(
               EdgeInsets.all(1),
             ),
@@ -134,11 +146,12 @@ class MyApp extends StatelessWidget {
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 10),
-            disabledBackgroundColor: Colors.black38,
+            disabledBackgroundColor: Colors.grey,
             disabledForegroundColor: Colors.white70,
-            foregroundColor: Colors.black87,
-            side: const BorderSide(color: Colors.black54),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+            foregroundColor: Colors.grey,
+            backgroundColor: Colors.white,
+            side: const BorderSide(color: Colors.grey),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
         ),
 

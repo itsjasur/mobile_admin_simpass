@@ -54,9 +54,9 @@ class PlanModel {
   final String mvnoNm;
   final String agentCd;
   final String agentNm;
-  final double basicFee;
-  final double salesFee;
-  double? discountFee;
+  final int basicFee;
+  final int salesFee;
+  int? discountFee;
   String? voice;
   String? message;
   String? cellData;
@@ -66,8 +66,8 @@ class PlanModel {
   String? carrierPlanTypeNm;
   final String carrierType;
   String? carrierTypeNm;
-  double? usimFee;
-  double? planFee;
+  int? usimFee;
+  int? planFee;
   String? fromDate;
   String? expireDate;
   final String status;

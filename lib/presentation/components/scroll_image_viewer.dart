@@ -1,15 +1,9 @@
 import 'dart:convert'; // For base64Decode
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:js/js.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js_util';
-
-// if (dart.library.html) 'package:eam_flutter/form/webui.dart'
 
 class ScrollFormImageViewer extends StatefulWidget {
   final List<String> binaryImageList;
@@ -145,21 +139,10 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
       );
     }
 
-    if (kIsWeb) {
-      // Code for web
-      await Printing.layoutPdf(
-          format: PdfPageFormat.a4,
-          onLayout: (_) async {
-            var res = await _javaScriptCode();
-            return res;
-          });
-    } else {
-      // Code for other platforms
-      await Printing.layoutPdf(
-        format: PdfPageFormat.a4,
-        onLayout: (_) async => await doc.save(),
-      );
-    }
+    await Printing.layoutPdf(
+      format: PdfPageFormat.a4,
+      onLayout: (_) async => await doc.save(),
+    );
 
     // final pdf = await rootBundle.load('pd.pdf');
     // await Printing.layoutPdf(
@@ -169,15 +152,4 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
 
     setState(() {});
   }
-
-  Future<Uint8List> _javaScriptCode() async {
-    var jsPromise = createPdfFromImages(widget.binaryImageList);
-    var dartFuture = promiseToFuture(jsPromise); // Convert the JavaScript Promise to a Dart Future
-    var result = await dartFuture; // Await the resolved Future
-    if (result is Uint8List) return result;
-    throw "Could not receive pdf";
-  }
 }
-
-@JS('createPdfFromImages')
-external Uint8List createPdfFromImages(base64formslist);

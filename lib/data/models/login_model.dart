@@ -6,6 +6,7 @@ class LoginResponseModel {
   final String userName;
   final List<String> roles;
   final String type;
+  final String name;
 
   LoginResponseModel({
     required this.token,
@@ -15,6 +16,7 @@ class LoginResponseModel {
     required this.roles,
     required this.type,
     required this.refreshToken,
+    required this.name,
   });
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class LoginResponseModel {
       userName: json["username"] ?? "",
       email: json["email"] ?? "",
       roles: List<String>.from(json['roles'] ?? []),
+      name: json['name'] ?? "",
     );
   }
 }

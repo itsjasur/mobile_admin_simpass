@@ -4,7 +4,7 @@ import 'package:admin_simpass/globals/constants.dart';
 import 'package:admin_simpass/globals/formatters.dart';
 import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/presentation/components/custom_alert_dialog.dart';
-import 'package:admin_simpass/presentation/components/header.dart';
+
 import 'package:admin_simpass/presentation/components/update_add_user_content.dart';
 import 'package:admin_simpass/presentation/components/pagination.dart';
 import 'package:admin_simpass/providers/myinfo_provider.dart';
@@ -21,12 +21,9 @@ class ManageUsersPage extends StatefulWidget {
 
 class _ManageUsersPageState extends State<ManageUsersPage> {
   final List<UserModel> _usersList = [];
-
   int _totalCount = 0;
-
   int _currentPage = 1;
   int _perPage = perPageCounts[0];
-
   bool _dataLoading = true;
 
   final List _columns = manageMembersColumns;
@@ -61,7 +58,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Header(title: "사용자 관리"),
                 const Gap(5),
                 if (myRoles.contains('ROLE_SUPER'))
                   Container(
@@ -83,21 +79,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                     ),
                   ),
                 const Gap(20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Pagination(
-                    totalCount: _totalCount,
-                    onUpdated: (currentPage, perPage) async {
-                      if (currentPage != _currentPage || perPage != _perPage) {
-                        _currentPage = currentPage;
-                        _perPage = perPage;
-                        _usersList.clear();
-                        await _fetchUsers();
-                      }
-                    },
-                  ),
-                ),
-                const Gap(5),
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) => Scrollbar(
