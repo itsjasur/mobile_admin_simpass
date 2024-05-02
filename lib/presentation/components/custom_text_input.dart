@@ -53,7 +53,7 @@ class CustomTextInput extends StatelessWidget {
         // helperText: '', //leaves empty place for error text
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 10,
-          vertical: 15,
+          vertical: 17,
         ),
         constraints: const BoxConstraints(minHeight: 30),
         isDense: true,

@@ -34,7 +34,7 @@ class CustomDropDownMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownMenu(
-      width: width + 7,
+      width: width,
       menuHeight: menuHeight,
       enableSearch: enableSearch,
       enableFilter: enableFilter,
@@ -60,10 +60,10 @@ class CustomDropDownMenu extends StatelessWidget {
       inputDecorationTheme: InputDecorationTheme(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 10,
-          vertical: 15,
+          vertical: 1,
         ),
         constraints: const BoxConstraints(
-          minHeight: 40,
+          minHeight: 20,
         ),
         isDense: true,
         labelStyle: const TextStyle(

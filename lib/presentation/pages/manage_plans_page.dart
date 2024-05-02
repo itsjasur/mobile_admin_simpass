@@ -1,32 +1,30 @@
 import 'package:admin_simpass/data/api/api_service.dart';
 import 'package:admin_simpass/data/models/plans_model.dart';
-import 'package:admin_simpass/globals/constants.dart';
-import 'package:admin_simpass/globals/formatters.dart';
 import 'package:admin_simpass/globals/main_ui.dart';
-import 'package:admin_simpass/presentation/components/update_add_plan_content.dart';
-import 'package:admin_simpass/presentation/components/custom_alert_dialog.dart';
-import 'package:admin_simpass/presentation/components/custom_text_input.dart';
-
 import 'package:admin_simpass/presentation/components/plans_filter_content.dart';
-import 'package:admin_simpass/presentation/components/pagination.dart';
+import 'package:admin_simpass/presentation/components/update_add_plan_content.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class ManagePlansPage extends StatefulWidget {
-  const ManagePlansPage({super.key});
+class ManagePlansPageNew extends StatefulWidget {
+  const ManagePlansPageNew({super.key});
 
   @override
-  State<ManagePlansPage> createState() => _ManagePlansPageState();
+  State<ManagePlansPageNew> createState() => _ManagePlansPageNewState();
 }
 
-class _ManagePlansPageState extends State<ManagePlansPage> {
+class _ManagePlansPageNewState extends State<ManagePlansPageNew> {
+  final List<PlanModel> _infoList = [];
   int _totalCount = 0;
   int _currentPage = 1;
-  int _perPage = perPageCounts[0];
   bool _dataLoading = true;
-  final List _columns = mangePlansColumns;
-  final List<PlanModel> _plansList = [];
+  bool _newDataLoading = false;
+
+  final ScrollController _scrollController = ScrollController();
+
   late ManagePlansModel _plansInfo;
+
+  int? _filterBadgeNumber;
 
   ManagePlanSearchModel _requestModel = ManagePlanSearchModel(
     agentCd: '',
@@ -40,432 +38,558 @@ class _ManagePlansPageState extends State<ManagePlansPage> {
     rowLimit: 10,
   );
 
-  int? _filterBadgeNumber;
-
-  final ScrollController _horizontalScrolCntr = ScrollController();
-  final TextEditingController _searchTextController = TextEditingController();
-
   @override
   void initState() {
-    _fetchPlansData();
     super.initState();
+    _fetchData();
+
+    _scrollController.addListener(() async {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        if (_infoList.length <= _totalCount && !_newDataLoading) {
+          _currentPage++;
+          _newDataLoading = true;
+          setState(() {});
+          await _fetchData();
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
-    _searchTextController.dispose();
-    _horizontalScrolCntr.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  int? _sortColumnIndex;
-  bool _sortAscending = true;
-
   @override
   Widget build(BuildContext context) {
-    return _dataLoading
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : SelectionArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Gap(5),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Wrap(
-                    direction: Axis.horizontal,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 20,
-                    runSpacing: 10,
-                    children: [
-                      /// ADD BUTTON
-                      SizedBox(
-                        height: 47,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(),
-                          onPressed: () {
-                            showCustomDialog(
-                              content: AddOrUpdatePlanContent(
-                                info: _plansInfo,
-                                callback: _fetchPlansData,
-                              ),
-                              context: context,
-                            );
-                          },
-                          child: const Text("신규등록 +"),
-                        ),
-                      ),
-                      Badge(
-                        alignment: Alignment.topLeft,
-                        isLabelVisible: _filterBadgeNumber != null,
-                        label: Text(_filterBadgeNumber.toString()),
-                        textStyle: const TextStyle(fontSize: 14),
-                        backgroundColor: Colors.redAccent,
-                        child: SizedBox(
-                          height: 47,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                            ),
-                            onPressed: () {
-                              showCustomDialog(
-                                context: context,
-                                content: ManagePlansFilterContent(
-                                  info: _plansInfo,
-                                  requestModel: _requestModel,
-                                  onApply: (requestModel) async {
-                                    setState(() {
-                                      _requestModel = requestModel;
-                                      _filterBadgeNumber = _requestModel.countNonEmptyFields();
-                                    });
+    ////checking user roles from myinfoprovider
+    // final myInfoProvider = Provider.of<MyinfoProvifer>(context, listen: false);
+    // List<String> myRoles = myInfoProvider.myRoles;
 
-                                    await Future.delayed(Duration.zero);
-                                    _fetchPlansData();
-                                  },
-                                ),
-                              );
-                            },
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.sort,
-                                  color: Colors.white,
-                                  size: 17,
-                                ),
-                                SizedBox(width: 5),
-                                Text("필터"),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        constraints: const BoxConstraints(
-                          maxWidth: 300,
-                        ),
-                        child: CustomTextInput(
-                          controller: _searchTextController,
-                          title: '요금제명',
-                        ),
-                      ),
-                      Container(
-                        constraints: const BoxConstraints(minWidth: 120),
-                        height: 47,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _fetchPlansData();
-                          },
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
+    return _dataLoading
+        ? Container(
+            color: Colors.white,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : Stack(
+            children: [
+              ListView.builder(
+                controller: _scrollController,
+                itemCount: _infoList.length + 2,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             children: [
-                              Icon(
-                                Icons.search_outlined,
-                                color: Colors.white,
-                                size: 17,
+                              const Text(
+                                "총 사용자: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
                               ),
-                              SizedBox(width: 5),
-                              Text("검색"),
+                              Text(
+                                _totalCount.toString(),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // if (!_dataLoading)
-                //   Scrollbar(
-                //     controller: _horizontalScrolCntr,
-                //     child: Container(
-                //       color: Colors.amber.shade50,
-                //       height: 20,
-                //       width: 1500,
-                //     ),
-                //   ),
-                const Gap(20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Pagination(
-                    totalCount: _totalCount,
-                    onUpdated: (currentPage, perPage) async {
-                      if (currentPage != _currentPage || perPage != _perPage) {
-                        _currentPage = currentPage;
-                        _perPage = perPage;
-                        await _fetchPlansData();
-                      }
-                    },
-                  ),
-                ),
-
-                const Gap(5),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => Scrollbar(
-                      controller: _horizontalScrolCntr,
-                      scrollbarOrientation: ScrollbarOrientation.top,
-                      child: SingleChildScrollView(
-                        controller: _horizontalScrolCntr,
-                        scrollDirection: Axis.horizontal,
-                        child: SingleChildScrollView(
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 15, bottom: 50, left: 20, right: 20),
-                            constraints: BoxConstraints(
-                              minWidth: constraints.maxWidth - 10,
-                            ),
-                            child: DataTable(
-                              sortColumnIndex: _sortColumnIndex,
-                              sortAscending: _sortAscending,
-                              showCheckboxColumn: false,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade200),
-                              ),
-                              border: TableBorder.all(
-                                color: Colors.transparent, // Make border color transparent
-                                width: 0,
-                              ),
-                              dataRowMinHeight: 40,
-                              columnSpacing: 40,
-                              headingRowHeight: 50,
-                              headingTextStyle: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              columns: List.generate(
-                                _columns.length,
-                                (index) {
-                                  return DataColumn(
-                                    onSort: (columnIndex, ascending) {
-                                      _sortAscending = ascending;
-                                      _sortColumnIndex = columnIndex;
-
-                                      void mysort<T>(Comparable<T> Function(PlanModel model) getField) {
-                                        _plansList.sort((a, b) {
-                                          final aValue = getField(a);
-                                          final bValue = getField(b);
-
-                                          return ascending ? Comparable.compare(aValue, bValue) : Comparable.compare(bValue, aValue);
+                          Badge(
+                            alignment: Alignment.topLeft,
+                            isLabelVisible: _filterBadgeNumber != null,
+                            label: Text(_filterBadgeNumber.toString()),
+                            textStyle: const TextStyle(fontSize: 12),
+                            backgroundColor: Colors.redAccent,
+                            child: SizedBox(
+                              height: 30,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  foregroundColor: MainUi.mainColor,
+                                  side: const BorderSide(color: MainUi.mainColor),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    useRootNavigator: true,
+                                    builder: (context) => ManagePlansFilterContent(
+                                      info: _plansInfo,
+                                      requestModel: _requestModel,
+                                      onApply: (requestModel) async {
+                                        setState(() {
+                                          _currentPage = 1;
+                                          _requestModel = requestModel;
+                                          _filterBadgeNumber = _requestModel.countNonEmptyFields();
                                         });
-                                      }
 
-                                      // sorting table on tap on header
-                                      if (columnIndex == 0) mysort((model) => model.id);
-                                      if (columnIndex == 1) mysort((model) => model.status.toLowerCase());
-                                      if (columnIndex == 2) mysort((model) => model.usimPlanNm.toLowerCase());
-                                      if (columnIndex == 3) mysort((model) => model.carrierNm.toLowerCase());
-                                      if (columnIndex == 4) mysort((model) => model.mvnoNm.toLowerCase());
-                                      if (columnIndex == 5) mysort((model) => model.agentNm.toLowerCase());
-                                      if (columnIndex == 6) mysort((model) => model.carrierTypeNm ?? "".toLowerCase());
-                                      if (columnIndex == 7) mysort((model) => model.carrierPlanTypeNm ?? "".toLowerCase());
-                                      if (columnIndex == 8) mysort((model) => model.basicFee);
-                                      if (columnIndex == 9) mysort((model) => model.salesFee);
-                                      if (columnIndex == 10) mysort((model) => model.message ?? "".toLowerCase());
-                                      if (columnIndex == 12) mysort((model) => model.cellData ?? "".toLowerCase());
-                                      if (columnIndex == 13) mysort((model) => model.videoEtc ?? "".toLowerCase());
-                                      if (columnIndex == 14) mysort((model) => model.qos ?? "".toLowerCase());
-
-                                      setState(() {});
-                                    },
-                                    label: Text(_columns[index]),
+                                        await Future.delayed(Duration.zero);
+                                        _fetchData();
+                                      },
+                                    ),
                                   );
                                 },
+                                child: const Text('필터'),
                               ),
-                              rows: List.generate(
-                                _plansList.length,
-                                (rowIndex) => DataRow(
-                                  // onSelectChanged: (value) {},
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }
 
-                                  cells: List.generate(
-                                    _columns.length,
-                                    (columnIndex) {
-                                      if (columnIndex == 0) {
-                                        return DataCell(
-                                          Text(_plansList[rowIndex].id.toString()),
-                                          onTap: () async {},
-                                        );
-                                      }
+                  if (index == _infoList.length + 1) {
+                    return _newDataLoading
+                        ? Align(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 50),
+                              height: 30,
+                              width: 30,
+                              child: const CircularProgressIndicator(),
+                            ),
+                          )
+                        : const SizedBox.shrink();
+                  }
 
-                                      if (columnIndex == 1) {
-                                        Color containerColor = Colors.black38;
-                                        if (_plansList[rowIndex].status == 'Y') containerColor = Colors.green;
-                                        if (_plansList[rowIndex].status == 'N') containerColor = Colors.redAccent;
+                  // cards
+                  int rowIndex = index - 1;
+                  Color statusColor = Colors.grey;
+                  if (_infoList[rowIndex].status == 'Y') statusColor = Colors.green;
+                  if (_infoList[rowIndex].status == 'W') statusColor = Colors.redAccent;
 
-                                        return DataCell(
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                            constraints: const BoxConstraints(minWidth: 80, maxWidth: 120),
-                                            decoration: BoxDecoration(
-                                              color: containerColor,
-                                              borderRadius: BorderRadius.circular(30),
-                                            ),
-                                            child: Text(
-                                              textAlign: TextAlign.center,
-                                              _plansList[rowIndex].statusNm ?? "",
-                                              style: const TextStyle(color: Colors.white),
-                                            ),
-                                          ),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 2) {
-                                        return DataCell(
-                                          Text(_plansList[rowIndex].usimPlanNm),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 3) {
-                                        return DataCell(
-                                          Text(_plansList[rowIndex].carrierNm),
-                                          onTap: () {},
-                                        );
-                                      }
-                                      if (columnIndex == 4) {
-                                        return DataCell(
-                                          Text(_plansList[rowIndex].mvnoNm),
-                                          onTap: () {},
-                                        );
-                                      }
-                                      if (columnIndex == 5) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].agentNm),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 6) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].carrierTypeNm ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 7) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].carrierPlanTypeNm ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 8) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(CustomFormat().wonify(_plansList[rowIndex].basicFee)),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 9) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(CustomFormat().wonify(_plansList[rowIndex].salesFee)),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 10) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].voice ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 11) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].message ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 12) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].cellData ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 13) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].videoEtc ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 14) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_plansList[rowIndex].qos ?? "-"),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 15) {
-                                        return DataCell(
-                                          const Icon(Icons.edit_outlined, color: MainUi.mainColor),
-                                          onTap: () {
-                                            //updating plan
-                                            showCustomDialog(
-                                              content: AddOrUpdatePlanContent(
-                                                info: _plansInfo,
-                                                selectedPlan: _plansList[rowIndex],
-                                                callback: _fetchPlansData,
-                                              ),
-                                              context: context,
-                                            );
-                                          },
-                                        );
-                                      }
-
-                                      return DataCell(onTap: () {}, const SizedBox());
-                                    },
-                                  ),
+                  return Container(
+                    color: Colors.grey.shade50,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "요금제명: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].usimPlanNm,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "상태: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: statusColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].statusNm ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "통신사: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].carrierNm,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "브랜드: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].mvnoNm,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "대리점: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].agentNm,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "서비스 유형: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].carrierTypeNm ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "가입대상: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].carrierPlanTypeNm ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "기본료: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].basicFee.toString(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "판매금액: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].salesFee.toString(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "문자: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].message ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "음성: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].voice ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "데이터: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].cellData ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SizedBox(
+                            height: 30,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                foregroundColor: MainUi.mainColor,
+                                side: const BorderSide(color: MainUi.mainColor),
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AddOrUpdatePlanContent(
+                                    info: _plansInfo,
+                                    selectedPlan: _infoList[rowIndex],
+                                    callback: _fetchData,
+                                  ),
+                                );
+                              },
+                              child: const Text('업데이트'),
+                            ),
                           ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 20,
+                left: 20,
+                child: Column(
+                  children: [
+                    InkWell(
+                      hoverColor: Colors.white54,
+                      borderRadius: BorderRadius.circular(50),
+                      onTap: () {
+                        // context.pop();
+                        scrollToBegin();
+                      },
+                      onHover: (value) {},
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.black38,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: const Icon(
+                          Icons.arrow_upward,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
                     ),
-                  ),
+                    const Gap(10),
+                    InkWell(
+                      hoverColor: Colors.white54,
+                      borderRadius: BorderRadius.circular(50),
+                      onTap: () {
+                        scrollToEnd();
+                      },
+                      onHover: (value) {},
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.black38,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: const Icon(
+                          Icons.arrow_downward,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
   }
 
-  Future<void> _fetchPlansData() async {
-    _plansList.clear();
+  //going back to the scroll begining
+  void scrollToBegin() {
+    _scrollController.animateTo(
+      _scrollController.position.minScrollExtent,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  //going back to the scroll begining
+  void scrollToEnd() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _fetchData() async {
+    if (_currentPage == 1) _infoList.clear();
 
     try {
       final APIService apiService = APIService();
       var result = await apiService.fetchPlansInfo(
         context: context,
         requestModel: _requestModel.copyWith(
-          rowLimit: _perPage,
+          rowLimit: 10,
           page: _currentPage,
-          usimPlanNm: _searchTextController.text,
         ),
       );
 
-      _plansList.addAll(result.planList);
       _plansInfo = result;
-      _totalCount = 10;
+      _infoList.addAll(result.planList);
+      _newDataLoading = false;
+      _totalCount = result.totalNum;
 
       _dataLoading = false;
       setState(() {});
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 }

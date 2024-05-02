@@ -5,6 +5,7 @@ import 'package:admin_simpass/presentation/pages/applications_page.dart';
 import 'package:admin_simpass/presentation/pages/customer_requests_page.dart';
 import 'package:admin_simpass/presentation/pages/empty_page.dart';
 import 'package:admin_simpass/presentation/pages/manage_plans_page.dart';
+import 'package:admin_simpass/presentation/pages/manage_plans_page.dart';
 import 'package:admin_simpass/presentation/pages/manage_users_page.dart';
 import 'package:admin_simpass/presentation/pages/menu_shell.dart';
 import 'package:admin_simpass/presentation/pages/login_page.dart';
@@ -20,7 +21,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/profile',
+  initialLocation: '/manage-plans',
   errorBuilder: (context, state) => const NotFoundPage(),
   routes: [
     GoRoute(
@@ -58,7 +59,7 @@ final appRouter = GoRouter(
         GoRoute(
           name: 'manager-plans',
           path: '/manage-plans',
-          builder: (context, state) => const ManagePlansPage(),
+          builder: (context, state) => const ManagePlansPageNew(),
         ),
         GoRoute(
           name: 'applications',

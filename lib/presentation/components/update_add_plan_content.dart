@@ -5,8 +5,10 @@ import 'package:admin_simpass/globals/validators.dart';
 import 'package:admin_simpass/presentation/components/button_circular_indicator.dart';
 import 'package:admin_simpass/presentation/components/custom_drop_down_menu.dart';
 import 'package:admin_simpass/presentation/components/custom_text_input.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
@@ -108,302 +110,251 @@ class _AddOrUpdatePlanContentState extends State<AddOrUpdatePlanContent> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 700,
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Gap(20),
-                Text(
-                  widget.selectedPlan == null ? "신규 요금제 등록" : "요금제 업테이트",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Gap(30),
-                Wrap(
-                  alignment: WrapAlignment.start,
-                  direction: Axis.horizontal,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  spacing: 15,
-                  runSpacing: 15,
+    return Scaffold(
+      body: Stack(
+        children: [
+          Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
+                    const Gap(20),
+                    Text(
+                      widget.selectedPlan == null ? "신규 요금제 등록" : "요금제 업테이트",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) => CustomDropDownMenu(
-                          label: const Text("통신사"),
-                          enableSearch: true,
+                    ),
+                    const Gap(30),
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      direction: Axis.horizontal,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      spacing: 15,
+                      runSpacing: 15,
+                      children: [
+                        LayoutBuilder(
+                          builder: (context, constraints) => CustomDropDownMenu(
+                            label: const Text("통신사"),
+                            enableSearch: true,
+                            enabled: widget.selectedPlan == null,
+                            errorText: _selectedCarrierCodeErr,
+                            items: _carriers,
+                            onSelected: (selectedItem) {
+                              _selectedCarrierCode = selectedItem;
+                              _selectedCarrierCodeErr = null;
+
+                              setState(() {});
+                            },
+                            width: constraints.maxWidth,
+                            selectedItem: _selectedCarrierCode,
+                          ),
+                        ),
+                        LayoutBuilder(
+                          builder: (context, constraints) => CustomDropDownMenu(
+                            enableSearch: true,
+                            label: const Text("브랜드"),
+                            errorText: _selectedMvnoCodeErr,
+                            onSelected: (selectedItem) {
+                              _selectedMvnoCodeErr = null;
+                              _selectedMvnoCode = selectedItem;
+
+                              if (mounted) setState(() {});
+                            },
+                            items: _mvnos,
+                            width: constraints.maxWidth,
+                            selectedItem: _selectedMvnoCode,
+                          ),
+                        ),
+                        LayoutBuilder(
+                          builder: (context, constraints) => CustomDropDownMenu(
+                            errorText: _selectedAgentCodeErr,
+                            enableSearch: true,
+                            label: const Text("대리점"),
+                            onSelected: (selectedItem) {
+                              _selectedAgentCodeErr = null;
+                              _selectedAgentCode = selectedItem;
+                              setState(() {});
+                            },
+                            items: _agents,
+                            width: constraints.maxWidth,
+                            selectedItem: _selectedAgentCode,
+                          ),
+                        ),
+                        LayoutBuilder(
+                          builder: (context, constraints) => CustomDropDownMenu(
+                            errorText: _selectedPlanTypeCodeErr,
+                            label: const Text("서비스 유형"),
+                            enableSearch: true,
+                            onSelected: (selectedItem) {
+                              _selectedPlanTypeCodeErr = null;
+                              _selectedPlanTypeCode = selectedItem;
+                              setState(() {});
+                            },
+                            items: _planTypes,
+                            width: constraints.maxWidth,
+                            selectedItem: _selectedPlanTypeCode,
+                          ),
+                        ),
+                        LayoutBuilder(
+                          builder: (context, constraints) => CustomDropDownMenu(
+                            label: const Text("요금제 가입구분"),
+                            enableSearch: true,
+                            errorText: _selectedSubscriberTargetCodeErr,
+                            onSelected: (selectedItem) {
+                              _selectedSubscriberTargetCodeErr = null;
+                              _selectedSubscriberTargetCode = selectedItem;
+                              setState(() {});
+                            },
+                            items: _subscriberTarget,
+                            width: constraints.maxWidth,
+                            selectedItem: _selectedSubscriberTargetCode,
+                          ),
+                        ),
+                        CustomTextInput(
+                          controller: _planNameController,
                           enabled: widget.selectedPlan == null,
-                          errorText: _selectedCarrierCodeErr,
-                          items: _carriers,
-                          onSelected: (selectedItem) {
-                            _selectedCarrierCode = selectedItem;
-                            _selectedCarrierCodeErr = null;
-
-                            setState(() {});
-                          },
-                          width: constraints.maxWidth,
-                          selectedItem: _selectedCarrierCode,
+                          title: '요금제명',
+                          validator: (value) => InputValidator().validateForNoneEmpty(value, '요금제명'),
                         ),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) => CustomDropDownMenu(
-                          enableSearch: true,
-                          label: const Text("브랜드"),
-                          errorText: _selectedMvnoCodeErr,
-                          onSelected: (selectedItem) {
-                            _selectedMvnoCodeErr = null;
-                            _selectedMvnoCode = selectedItem;
-
-                            if (mounted) setState(() {});
-                          },
-                          items: _mvnos,
-                          width: constraints.maxWidth,
-                          selectedItem: _selectedMvnoCode,
+                        LayoutBuilder(
+                          builder: (context, constraints) => CustomDropDownMenu(
+                            errorText: _selectedStatusCodeErr,
+                            label: const Text("상태"),
+                            enableSearch: true,
+                            onSelected: (selectedItem) {
+                              _selectedStatusCode = selectedItem;
+                              _selectedStatusCodeErr = null;
+                              setState(() {});
+                            },
+                            items: _statuses,
+                            width: constraints.maxWidth,
+                            selectedItem: _selectedStatusCode,
+                          ),
                         ),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 250,
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) => CustomDropDownMenu(
-                          errorText: _selectedAgentCodeErr,
-                          enableSearch: true,
-                          label: const Text("대리점"),
-                          onSelected: (selectedItem) {
-                            _selectedAgentCodeErr = null;
-                            _selectedAgentCode = selectedItem;
-                            setState(() {});
-                          },
-                          items: _agents,
-                          width: constraints.maxWidth,
-                          selectedItem: _selectedAgentCode,
+                        CustomTextInput(
+                          controller: _baseAmountController,
+                          title: '기본료',
+                          validator: (value) => InputValidator().validateForNoneEmpty(value, '기본료'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            CurrencyInputFormatter(),
+                          ],
                         ),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) => CustomDropDownMenu(
-                          errorText: _selectedPlanTypeCodeErr,
-                          label: const Text("서비스 유형"),
-                          enableSearch: true,
-                          onSelected: (selectedItem) {
-                            _selectedPlanTypeCodeErr = null;
-                            _selectedPlanTypeCode = selectedItem;
-                            setState(() {});
-                          },
-                          items: _planTypes,
-                          width: constraints.maxWidth,
-                          selectedItem: _selectedPlanTypeCode,
+                        CustomTextInput(
+                          controller: _saleAmountController,
+                          title: '판매금액',
+                          validator: (value) => InputValidator().validateForNoneEmpty(value, '판매금액'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            CurrencyInputFormatter(),
+                          ],
                         ),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) => CustomDropDownMenu(
-                          label: const Text("요금제 가입구분"),
-                          enableSearch: true,
-                          errorText: _selectedSubscriberTargetCodeErr,
-                          onSelected: (selectedItem) {
-                            _selectedSubscriberTargetCodeErr = null;
-                            _selectedSubscriberTargetCode = selectedItem;
-                            setState(() {});
-                          },
-                          items: _subscriberTarget,
-                          width: constraints.maxWidth,
-                          selectedItem: _selectedSubscriberTargetCode,
+                        CustomTextInput(
+                          controller: _smsController,
+                          title: '문자',
+                          validator: (value) => InputValidator().validateForNoneEmpty(value, '문자'),
                         ),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 400,
-                      ),
-                      child: CustomTextInput(
-                        controller: _planNameController,
-                        enabled: widget.selectedPlan == null,
-                        title: '요금제명',
-                        validator: (value) => InputValidator().validateForNoneEmpty(value, '요금제명'),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) => CustomDropDownMenu(
-                          errorText: _selectedStatusCodeErr,
-                          label: const Text("상태"),
-                          enableSearch: true,
-                          onSelected: (selectedItem) {
-                            _selectedStatusCode = selectedItem;
-                            _selectedStatusCodeErr = null;
-                            setState(() {});
-                          },
-                          items: _statuses,
-                          width: constraints.maxWidth,
-                          selectedItem: _selectedStatusCode,
+                        CustomTextInput(
+                          controller: _dataController,
+                          title: '데이터',
+                          validator: (value) => InputValidator().validateForNoneEmpty(value, '데이터'),
                         ),
-                      ),
+                        CustomTextInput(
+                          controller: _voiceController,
+                          title: '음성',
+                          validator: (value) => InputValidator().validateForNoneEmpty(value, '음성'),
+                        ),
+                        CustomTextInput(
+                          controller: _videoEtcController,
+                          title: '영상/기타',
+                        ),
+                        CustomTextInput(
+                          controller: _qosController,
+                          title: 'QOS',
+                        ),
+                        CustomTextInput(
+                          controller: _priorityController,
+                          title: '우선순위',
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            CurrencyInputFormatter(),
+                          ],
+                        ),
+                      ],
                     ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _baseAmountController,
-                        title: '기본료',
-                        validator: (value) => InputValidator().validateForNoneEmpty(value, '기본료'),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          CurrencyInputFormatter(),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _saleAmountController,
-                        title: '판매금액',
-                        validator: (value) => InputValidator().validateForNoneEmpty(value, '판매금액'),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          CurrencyInputFormatter(),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _smsController,
-                        title: '문자',
-                        validator: (value) => InputValidator().validateForNoneEmpty(value, '문자'),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _dataController,
-                        title: '데이터',
-                        validator: (value) => InputValidator().validateForNoneEmpty(value, '데이터'),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _voiceController,
-                        title: '음성',
-                        validator: (value) => InputValidator().validateForNoneEmpty(value, '음성'),
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _videoEtcController,
-                        title: '영상/기타',
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _qosController,
-                        title: 'QOS',
-                      ),
-                    ),
-                    Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 200,
-                      ),
-                      child: CustomTextInput(
-                        controller: _priorityController,
-                        title: '우선순위',
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          CurrencyInputFormatter(),
-                        ],
-                      ),
+                    const Gap(40),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey,
+                              ),
+                              onPressed: () {
+                                context.pop();
+                              },
+                              child: const Text("취소"),
+                            ),
+                          ),
+                        ),
+                        const Gap(20),
+                        Expanded(
+                          child: SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(),
+                              onPressed: _dataUpdating
+                                  ? null
+                                  : () {
+                                      _updateOrAddPlan();
+                                    },
+                              child: _dataUpdating ? const ButtonCircularProgressIndicator() : const Text("저장"),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const Gap(40),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.end,
-                    runSpacing: 20,
-                    spacing: 20,
-                    children: [
-                      Container(
-                        height: 47,
-                        constraints: const BoxConstraints(minWidth: 100),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
-                          ),
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: const Text("취소"),
-                        ),
-                      ),
-                      Container(
-                        height: 47,
-                        constraints: const BoxConstraints(minWidth: 100),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(),
-                          onPressed: _dataUpdating
-                              ? null
-                              : () {
-                                  _updateOrAddPlan();
-                                },
-                          child: _dataUpdating ? const ButtonCircularProgressIndicator() : const Text("저장"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: InkWell(
+              hoverColor: Colors.white54,
+              borderRadius: BorderRadius.circular(50),
+              onTap: () {
+                context.pop();
+              },
+              onHover: (value) {},
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: Colors.black12,
+                ),
+                padding: const EdgeInsets.all(10),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

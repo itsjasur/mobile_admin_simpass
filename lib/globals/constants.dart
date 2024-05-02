@@ -1,4 +1,4 @@
-double desktopBreakPoint = 700;
+// double desktopBreakPoint = 700;
 
 Map<String, List> rolePathAccessInfo = {
   "/profile": ["ALL"],

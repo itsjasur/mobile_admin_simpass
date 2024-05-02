@@ -1,4 +1,5 @@
 import 'package:admin_simpass/globals/constants.dart';
+import 'package:admin_simpass/globals/global_keys.dart';
 import 'package:admin_simpass/presentation/components/clickable_logo.dart';
 import 'package:admin_simpass/providers/appbar_provider.dart';
 import 'package:admin_simpass/providers/auth_provider.dart';
@@ -35,6 +36,7 @@ class SideMenu extends StatelessWidget {
                       InkWell(
                         onTap: () {
                           context.go('/profile');
+                          shellScaffoldKey.currentState?.closeDrawer();
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),

@@ -219,6 +219,7 @@ class ManagePlanSearchModel {
 
   int? countNonEmptyFields() {
     List<String> fields = [
+      usimPlanNm,
       carrierCd,
       mvnoCd,
       agentCd,
