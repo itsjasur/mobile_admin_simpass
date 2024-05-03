@@ -189,3 +189,44 @@ class RetailerModel {
     );
   }
 }
+
+class RetailersRequestModel {
+  String partnerName;
+  String status;
+  int rowLimit;
+  int currentPage;
+
+  RetailersRequestModel({required this.partnerName, required this.status, required this.rowLimit, required this.currentPage});
+
+  Map<String, dynamic> toJson() {
+    return {
+      "partner_nm": partnerName,
+      "status": status,
+      "currentPage": currentPage,
+      "rowLimit": rowLimit,
+    };
+  }
+
+  RetailersRequestModel copyWith({
+    String? partnerName,
+    String? status,
+    int? rowLimit,
+    int? currentPage,
+  }) {
+    return RetailersRequestModel(
+      partnerName: partnerName ?? this.partnerName,
+      status: status ?? this.status,
+      rowLimit: rowLimit ?? this.rowLimit,
+      currentPage: currentPage ?? this.currentPage,
+    );
+  }
+
+  int? countNonEmptyFields() {
+    List<String> fields = [
+      partnerName,
+      status,
+    ];
+    int count = fields.fold(0, (int sum, String field) => sum + (field.isNotEmpty ? 1 : 0));
+    return count == 0 ? null : count;
+  }
+}

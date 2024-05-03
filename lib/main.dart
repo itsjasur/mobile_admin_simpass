@@ -1,5 +1,5 @@
 import 'package:admin_simpass/globals/global_keys.dart';
-import 'package:admin_simpass/providers/appbar_provider.dart';
+
 import 'package:admin_simpass/providers/auth_provider.dart';
 import 'package:admin_simpass/providers/myinfo_provider.dart';
 import 'package:admin_simpass/providers/menu_navigation_provider.dart';
@@ -20,7 +20,6 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => AuthServiceProvider()),
       ChangeNotifierProvider(create: (context) => MyinfoProvifer()),
       ChangeNotifierProvider(create: (context) => MenuIndexProvider()),
-      ChangeNotifierProvider(create: (context) => AppBarProvider()),
     ],
     child: const MyApp(),
   ));
@@ -50,10 +49,11 @@ class MyApp extends StatelessWidget {
         // ...
       ],
 
-      themeMode: ThemeMode.light,
+      // themeMode: ThemeMode.light,
       // darkTheme: ThemeData.dark(), // Optional, ensure this is set properly
 
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: const ColorScheme.light(
           brightness: Brightness.light,
           primary: MainUi.mainColor,
@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
             TargetPlatform.windows: NoTransitionsBuilder(),
           },
         ),
-        useMaterial3: true,
+
         // textTheme: GoogleFonts.notoSansKrTextTheme(Theme.of(context).textTheme),
         // textTheme: GoogleFonts.notoSansKRTextTheme(),
         dividerTheme: DividerThemeData(
@@ -75,23 +75,27 @@ class MyApp extends StatelessWidget {
           thickness: 0,
         ),
 
-        datePickerTheme: const DatePickerThemeData(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          rangePickerBackgroundColor: Colors.transparent,
-          rangePickerHeaderForegroundColor: Colors.transparent,
-          rangePickerHeaderBackgroundColor: Colors.transparent,
-        ),
+        // datePickerTheme: const DatePickerThemeData(
+        //   backgroundColor: Colors.white,
+        //   surfaceTintColor: Colors.transparent,
+        //   rangePickerBackgroundColor: Colors.transparent,
+        //   rangePickerHeaderForegroundColor: Colors.transparent,
+        //   rangePickerHeaderBackgroundColor: Colors.transparent,
+        // ),
+
         timePickerTheme: const TimePickerThemeData(
           backgroundColor: Colors.white,
         ),
 
         bottomSheetTheme: const BottomSheetThemeData(
+          surfaceTintColor: Colors.white,
           backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
+          // modalBarrierColor: Colors.white,
+          // modalBackgroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           showDragHandle: true,
-          dragHandleColor: Colors.black12,
         ),
+
         scaffoldBackgroundColor: Colors.white,
 
         appBarTheme: const AppBarTheme(

@@ -27,9 +27,9 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black87,
-      child: Stack(
+    return Scaffold(
+      backgroundColor: Colors.black87,
+      body: Stack(
         children: [
           _dataLoading
               ? const Align(child: CircularProgressIndicator(color: Colors.white))
@@ -37,19 +37,14 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
                   ? const Align(
                       child: Text('첨부파일을 찾을 수 없습니다', style: TextStyle(color: Colors.white)),
                     )
-                  : Align(
-                      child: SizedBox(
-                        width: 1200,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.only(top: 10),
-                          itemCount: _base64ImagesList.length,
-                          itemBuilder: (context, index) => Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: Image.memory(
-                              base64.decode(_base64ImagesList[index]),
-                            ),
-                          ),
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(top: 10),
+                      itemCount: _base64ImagesList.length,
+                      itemBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Image.memory(
+                          base64.decode(_base64ImagesList[index]),
                         ),
                       ),
                     ),

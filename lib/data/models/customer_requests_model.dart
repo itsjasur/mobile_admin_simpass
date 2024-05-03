@@ -90,3 +90,48 @@ class CustomerRequestModel {
     );
   }
 }
+
+class CustomerRequestFetchModel {
+  String countryCode;
+  String status;
+  String name;
+  int rowLimit;
+  int currentPage;
+
+  CustomerRequestFetchModel({required this.countryCode, required this.name, required this.status, required this.rowLimit, required this.currentPage});
+
+  Map<String, dynamic> toJson() {
+    return {
+      "country_cd": countryCode,
+      "status": status,
+      "currentPage": currentPage,
+      "rowLimit": rowLimit,
+    };
+  }
+
+  CustomerRequestFetchModel copyWith({
+    String? countryCode,
+    String? status,
+    String? name,
+    int? rowLimit,
+    int? currentPage,
+  }) {
+    return CustomerRequestFetchModel(
+      countryCode: countryCode ?? this.countryCode,
+      name: name ?? this.name,
+      status: status ?? this.status,
+      rowLimit: rowLimit ?? this.rowLimit,
+      currentPage: currentPage ?? this.currentPage,
+    );
+  }
+
+  int? countNonEmptyFields() {
+    List<String> fields = [
+      countryCode,
+      status,
+      name,
+    ];
+    int count = fields.fold(0, (int sum, String field) => sum + (field.isNotEmpty ? 1 : 0));
+    return count == 0 ? null : count;
+  }
+}

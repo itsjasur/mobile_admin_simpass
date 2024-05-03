@@ -1,24 +1,28 @@
 import 'package:admin_simpass/data/api/api_service.dart';
+import 'package:admin_simpass/data/models/applications_model.dart';
+import 'package:admin_simpass/globals/formatters.dart';
+import 'package:admin_simpass/globals/validators.dart';
 import 'package:admin_simpass/presentation/components/button_circular_indicator.dart';
 import 'package:admin_simpass/presentation/components/custom_drop_down_menu.dart';
+import 'package:admin_simpass/presentation/components/custom_text_input.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/models/code_value_model.dart';
 
-class CustomerRequestStatusUpdateContent extends StatefulWidget {
+class RetailerStatusUpdateContent extends StatefulWidget {
   final List<CodeValue> items;
-  final int id;
+  final String retailerCode;
   final Function? callBack;
 
-  const CustomerRequestStatusUpdateContent({super.key, required this.items, required this.id, this.callBack});
+  const RetailerStatusUpdateContent({super.key, required this.items, required this.retailerCode, this.callBack});
 
   @override
-  State<CustomerRequestStatusUpdateContent> createState() => _CustomerRequestStatusUpdateContentState();
+  State<RetailerStatusUpdateContent> createState() => _RetailerStatusUpdateContentState();
 }
 
-class _CustomerRequestStatusUpdateContentState extends State<CustomerRequestStatusUpdateContent> {
+class _RetailerStatusUpdateContentState extends State<RetailerStatusUpdateContent> {
   String _selectedStatusCode = "";
   final _formKey = GlobalKey<FormState>();
   bool _updating = false;
@@ -136,15 +140,16 @@ class _CustomerRequestStatusUpdateContentState extends State<CustomerRequestStat
 
     if (_formKey.currentState!.validate() && _selectedStatusCode.isNotEmpty) {
       final APIService apiService = APIService();
-      await apiService.updateCustomerRequestStatus(
+      await apiService.updateRetailerStatus(
         context: context,
         requestModel: {
-          "id": widget.id,
+          "partner_cd": widget.retailerCode,
           "status": _selectedStatusCode,
         },
       );
 
       if (mounted) context.pop();
+
       if (widget.callBack != null) widget.callBack!();
     }
 

@@ -1,9 +1,6 @@
-import 'package:admin_simpass/globals/global_keys.dart';
 import 'package:admin_simpass/globals/main_ui.dart';
-import 'package:admin_simpass/providers/side_menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 
 class SideMenuWidget extends StatefulWidget {
   const SideMenuWidget({
@@ -28,7 +25,6 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
     return InkWell(
       onTap: () {
         widget.press();
-        shellScaffoldKey.currentState?.closeDrawer();
       },
       child: FittedBox(
         fit: BoxFit.scaleDown,

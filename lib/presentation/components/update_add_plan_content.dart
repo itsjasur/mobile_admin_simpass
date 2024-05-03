@@ -139,83 +139,68 @@ class _AddOrUpdatePlanContentState extends State<AddOrUpdatePlanContent> {
                       spacing: 15,
                       runSpacing: 15,
                       children: [
-                        LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            label: const Text("통신사"),
-                            enableSearch: true,
-                            enabled: widget.selectedPlan == null,
-                            errorText: _selectedCarrierCodeErr,
-                            items: _carriers,
-                            onSelected: (selectedItem) {
-                              _selectedCarrierCode = selectedItem;
-                              _selectedCarrierCodeErr = null;
+                        CustomDropDownMenu(
+                          label: const Text("통신사"),
+                          enableSearch: true,
+                          enabled: widget.selectedPlan == null,
+                          errorText: _selectedCarrierCodeErr,
+                          items: _carriers,
+                          onSelected: (selectedItem) {
+                            _selectedCarrierCode = selectedItem;
+                            _selectedCarrierCodeErr = null;
 
-                              setState(() {});
-                            },
-                            width: constraints.maxWidth,
-                            selectedItem: _selectedCarrierCode,
-                          ),
+                            setState(() {});
+                          },
+                          selectedItem: _selectedCarrierCode,
                         ),
-                        LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            enableSearch: true,
-                            label: const Text("브랜드"),
-                            errorText: _selectedMvnoCodeErr,
-                            onSelected: (selectedItem) {
-                              _selectedMvnoCodeErr = null;
-                              _selectedMvnoCode = selectedItem;
+                        CustomDropDownMenu(
+                          enableSearch: true,
+                          label: const Text("브랜드"),
+                          errorText: _selectedMvnoCodeErr,
+                          onSelected: (selectedItem) {
+                            _selectedMvnoCodeErr = null;
+                            _selectedMvnoCode = selectedItem;
 
-                              if (mounted) setState(() {});
-                            },
-                            items: _mvnos,
-                            width: constraints.maxWidth,
-                            selectedItem: _selectedMvnoCode,
-                          ),
+                            if (mounted) setState(() {});
+                          },
+                          items: _mvnos,
+                          selectedItem: _selectedMvnoCode,
                         ),
-                        LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            errorText: _selectedAgentCodeErr,
-                            enableSearch: true,
-                            label: const Text("대리점"),
-                            onSelected: (selectedItem) {
-                              _selectedAgentCodeErr = null;
-                              _selectedAgentCode = selectedItem;
-                              setState(() {});
-                            },
-                            items: _agents,
-                            width: constraints.maxWidth,
-                            selectedItem: _selectedAgentCode,
-                          ),
+                        CustomDropDownMenu(
+                          errorText: _selectedAgentCodeErr,
+                          enableSearch: true,
+                          label: const Text("대리점"),
+                          onSelected: (selectedItem) {
+                            _selectedAgentCodeErr = null;
+                            _selectedAgentCode = selectedItem;
+                            setState(() {});
+                          },
+                          items: _agents,
+                          selectedItem: _selectedAgentCode,
                         ),
-                        LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            errorText: _selectedPlanTypeCodeErr,
-                            label: const Text("서비스 유형"),
-                            enableSearch: true,
-                            onSelected: (selectedItem) {
-                              _selectedPlanTypeCodeErr = null;
-                              _selectedPlanTypeCode = selectedItem;
-                              setState(() {});
-                            },
-                            items: _planTypes,
-                            width: constraints.maxWidth,
-                            selectedItem: _selectedPlanTypeCode,
-                          ),
+                        CustomDropDownMenu(
+                          errorText: _selectedPlanTypeCodeErr,
+                          label: const Text("서비스 유형"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedPlanTypeCodeErr = null;
+                            _selectedPlanTypeCode = selectedItem;
+                            setState(() {});
+                          },
+                          items: _planTypes,
+                          selectedItem: _selectedPlanTypeCode,
                         ),
-                        LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            label: const Text("요금제 가입구분"),
-                            enableSearch: true,
-                            errorText: _selectedSubscriberTargetCodeErr,
-                            onSelected: (selectedItem) {
-                              _selectedSubscriberTargetCodeErr = null;
-                              _selectedSubscriberTargetCode = selectedItem;
-                              setState(() {});
-                            },
-                            items: _subscriberTarget,
-                            width: constraints.maxWidth,
-                            selectedItem: _selectedSubscriberTargetCode,
-                          ),
+                        CustomDropDownMenu(
+                          label: const Text("요금제 가입구분"),
+                          enableSearch: true,
+                          errorText: _selectedSubscriberTargetCodeErr,
+                          onSelected: (selectedItem) {
+                            _selectedSubscriberTargetCodeErr = null;
+                            _selectedSubscriberTargetCode = selectedItem;
+                            setState(() {});
+                          },
+                          items: _subscriberTarget,
+                          selectedItem: _selectedSubscriberTargetCode,
                         ),
                         CustomTextInput(
                           controller: _planNameController,
@@ -223,20 +208,17 @@ class _AddOrUpdatePlanContentState extends State<AddOrUpdatePlanContent> {
                           title: '요금제명',
                           validator: (value) => InputValidator().validateForNoneEmpty(value, '요금제명'),
                         ),
-                        LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            errorText: _selectedStatusCodeErr,
-                            label: const Text("상태"),
-                            enableSearch: true,
-                            onSelected: (selectedItem) {
-                              _selectedStatusCode = selectedItem;
-                              _selectedStatusCodeErr = null;
-                              setState(() {});
-                            },
-                            items: _statuses,
-                            width: constraints.maxWidth,
-                            selectedItem: _selectedStatusCode,
-                          ),
+                        CustomDropDownMenu(
+                          errorText: _selectedStatusCodeErr,
+                          label: const Text("상태"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedStatusCode = selectedItem;
+                            _selectedStatusCodeErr = null;
+                            setState(() {});
+                          },
+                          items: _statuses,
+                          selectedItem: _selectedStatusCode,
                         ),
                         CustomTextInput(
                           controller: _baseAmountController,

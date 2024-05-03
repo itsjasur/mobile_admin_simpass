@@ -294,7 +294,7 @@ class APIService {
     }
   }
 
-  Future<bool> updateApplicationStatus({required BuildContext context, required ApplicationStatusUpdatemodel requestModel}) async {
+  Future<void> updateApplicationStatus({required BuildContext context, required ApplicationStatusUpdatemodel requestModel}) async {
     var messenger = ScaffoldMessenger.of(context);
     messenger.clearSnackBars();
 
@@ -313,15 +313,12 @@ class APIService {
 
       if (response.statusCode == 200 && decodedResponse['result'] == 'SUCCESS') {
         messenger.showSnackBar(SnackBar(content: Text(decodedResponse['message'])));
-        return true;
       } else {
         throw decodedResponse['message'] ?? "Applications request data error";
       }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     }
-
-    return false;
   }
 
   Future<ApplicationDetailsModel> fetchApplicationDetails({required BuildContext context, required String applicationId}) async {
@@ -400,13 +397,13 @@ class APIService {
     }
   }
 
-  Future<RetailersModel> fetchRetailers({required BuildContext context, Map? requestModel}) async {
+  Future<RetailersModel> fetchRetailers({required BuildContext context, required RetailersRequestModel requestModel}) async {
     try {
       String? accessToken = await getAccessToken();
       headers['Authorization'] = 'Bearer $accessToken';
 
       Uri url = _urlMaker('agent/partner');
-      var body = json.encode(requestModel);
+      var body = json.encode(requestModel.toJson());
       var response = await http.post(url, headers: headers, body: body);
 
       response = await RequestHelper().post(context.mounted ? context : null, response, url, headers, body);
@@ -423,7 +420,7 @@ class APIService {
     }
   }
 
-  Future<bool> updateRetailerStatus({required BuildContext context, required Map requestModel}) async {
+  Future<void> updateRetailerStatus({required BuildContext context, required Map requestModel}) async {
     var messenger = ScaffoldMessenger.of(context);
     messenger.clearSnackBars();
 
@@ -440,14 +437,12 @@ class APIService {
 
       if (response.statusCode == 200 && decodedResponse['result'] == 'SUCCESS') {
         messenger.showSnackBar(SnackBar(content: Text(decodedResponse['message'])));
-        return true;
       } else {
         throw decodedResponse['message'] ?? "Retailer request data error";
       }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     }
-    return false;
   }
 
   Future<RetailerModel> fetchRetailerDetails({required BuildContext context, required String retailerCode}) async {
@@ -498,7 +493,7 @@ class APIService {
     }
   }
 
-  Future<CustomerRequestsModel> fetchCustomerRequests({required BuildContext context, required Map requestModel}) async {
+  Future<CustomerRequestsModel> fetchCustomerRequests({required BuildContext context, required CustomerRequestFetchModel requestModel}) async {
     try {
       String? accessToken = await getAccessToken();
       headers['Authorization'] = 'Bearer $accessToken';

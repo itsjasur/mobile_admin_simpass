@@ -1,14 +1,11 @@
 import 'package:admin_simpass/globals/constants.dart';
 import 'package:admin_simpass/globals/global_keys.dart';
 import 'package:admin_simpass/presentation/components/clickable_logo.dart';
-import 'package:admin_simpass/providers/appbar_provider.dart';
 import 'package:admin_simpass/providers/auth_provider.dart';
 import 'package:admin_simpass/providers/menu_navigation_provider.dart';
 import 'package:admin_simpass/providers/myinfo_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_simpass/presentation/components/side_menu_tile.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -36,7 +33,6 @@ class SideMenu extends StatelessWidget {
                       InkWell(
                         onTap: () {
                           // context.go('/profile');
-                          // shellScaffoldKey.currentState?.closeDrawer();
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
@@ -62,8 +58,8 @@ class SideMenu extends StatelessWidget {
                         title: "나의 정보",
                         iconSrc: "assets/icons/user.svg",
                         press: () {
+                          rootScaffoldKey.currentState?.closeDrawer();
                           context.go('/profile');
-                          Provider.of<AppBarProvider>(context, listen: false).appBarChange("나의 정보");
                         },
                         isSelected: value.openSideMenuIndex == 0,
                       ),
@@ -72,8 +68,8 @@ class SideMenu extends StatelessWidget {
                           title: "사용자 관리",
                           iconSrc: "assets/icons/admin.svg",
                           press: () {
+                            rootScaffoldKey.currentState?.closeDrawer();
                             context.go('/manage-users');
-                            Provider.of<AppBarProvider>(context, listen: false).appBarChange("사용자 관리");
                           },
                           isSelected: value.openSideMenuIndex == 1,
                         ),
@@ -82,8 +78,8 @@ class SideMenu extends StatelessWidget {
                           title: "요금제 관리",
                           iconSrc: "assets/icons/plans.svg",
                           press: () {
+                            rootScaffoldKey.currentState?.closeDrawer();
                             context.go('/manage-plans');
-                            Provider.of<AppBarProvider>(context, listen: false).appBarChange("요금제 관리");
                           },
                           isSelected: value.openSideMenuIndex == 2,
                         ),
@@ -92,8 +88,8 @@ class SideMenu extends StatelessWidget {
                           title: "신청서 접수현황",
                           iconSrc: "assets/icons/regis.svg",
                           press: () {
+                            rootScaffoldKey.currentState?.closeDrawer();
                             context.go('/applications');
-                            Provider.of<AppBarProvider>(context, listen: false).appBarChange("신청서 접수현황");
                           },
                           isSelected: value.openSideMenuIndex == 3,
                         ),
@@ -102,8 +98,8 @@ class SideMenu extends StatelessWidget {
                           title: "판매점 계약현황",
                           iconSrc: "assets/icons/partner.svg",
                           press: () {
+                            rootScaffoldKey.currentState?.closeDrawer();
                             context.go('/retailers');
-                            Provider.of<AppBarProvider>(context, listen: false).appBarChange("판매점 계약현황");
                           },
                           isSelected: value.openSideMenuIndex == 4,
                         ),
@@ -111,8 +107,8 @@ class SideMenu extends StatelessWidget {
                         title: "상담사 개통 문의현황",
                         iconSrc: "assets/icons/call.svg",
                         press: () {
+                          rootScaffoldKey.currentState?.closeDrawer();
                           context.go('/customer-requests');
-                          Provider.of<AppBarProvider>(context, listen: false).appBarChange("상담사 개통 문의현황");
                         },
                         isSelected: value.openSideMenuIndex == 5,
                       ),

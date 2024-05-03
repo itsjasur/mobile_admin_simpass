@@ -56,7 +56,6 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -74,11 +73,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 const SizedBox(height: 30),
                 Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
+                  padding: const EdgeInsets.all(20),
                   width: 400,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

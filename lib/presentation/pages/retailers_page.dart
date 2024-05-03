@@ -1,15 +1,13 @@
 import 'package:admin_simpass/data/api/api_service.dart';
 import 'package:admin_simpass/data/models/code_value_model.dart';
 import 'package:admin_simpass/data/models/retailers_model.dart';
-import 'package:admin_simpass/globals/constants.dart';
+import 'package:admin_simpass/globals/controller_handler.dart';
 import 'package:admin_simpass/globals/formatters.dart';
-import 'package:admin_simpass/presentation/components/custom_alert_dialog.dart';
-import 'package:admin_simpass/presentation/components/custom_drop_down_menu.dart';
-import 'package:admin_simpass/presentation/components/custom_text_input.dart';
-
-import 'package:admin_simpass/presentation/components/pagination.dart';
+import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/presentation/components/retailer_details_content.dart';
-import 'package:admin_simpass/presentation/components/retailerer_status_update_content.dart';
+import 'package:admin_simpass/presentation/components/retailer_status_update_content.dart';
+import 'package:admin_simpass/presentation/components/retailers_filter_content.dart';
+import 'package:admin_simpass/presentation/components/side_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -17,380 +15,457 @@ class RetailersPage extends StatefulWidget {
   const RetailersPage({super.key});
 
   @override
-  State<RetailersPage> createState() => _RetailersPageState();
+  State<RetailersPage> createState() => RetailersPageState();
 }
 
-class _RetailersPageState extends State<RetailersPage> {
-  bool _dataLoading = true;
-
-  final List _columns = retailersColumns;
+class RetailersPageState extends State<RetailersPage> {
+  final List<RetailerModel> _infoList = [];
 
   int _totalCount = 0;
   int _currentPage = 1;
-  int _perPage = perPageCounts[0];
+  bool _dataLoading = true;
+  bool _newDataLoading = false;
 
-  final TextEditingController _retailerNameContr = TextEditingController();
-  final ScrollController _horizontalScrolCntr = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
-  String _selectedStatusCode = "";
-  int? _sortColumnIndex;
-  bool _sortAscending = true;
-
-  List<RetailerModel> _retailersList = [];
-  final List<CodeValue> _statusesList = [];
+  int? _filterBadgeNumber;
+  List<CodeValue> _statusesList = [];
+  RetailersRequestModel _requestModel = RetailersRequestModel(
+    partnerName: "",
+    status: "",
+    rowLimit: 10,
+    currentPage: 1,
+  );
 
   @override
   void initState() {
     super.initState();
-    _fetchRetailers();
+    _fetchData();
+    _scrollController.addListener(() async {
+      if (_scrollController.hasClients && _scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        if (_infoList.length < _totalCount && !_newDataLoading) {
+          _currentPage++;
+          _newDataLoading = true;
+          setState(() {});
+          await _fetchData();
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
-    _retailerNameContr.dispose();
-    _horizontalScrolCntr.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _dataLoading
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : SelectionArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      appBar: AppBar(title: const Text("판매점 계약현황")),
+      drawer: const SideMenu(),
+      body: _dataLoading
+          ? Container(
+              color: Colors.white,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : Stack(
               children: [
-                const Gap(5),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Wrap(
-                    direction: Axis.horizontal,
-                    spacing: 20,
-                    runSpacing: 10,
-                    children: [
-                      Container(
-                        constraints: const BoxConstraints(
-                          maxWidth: 200,
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) => CustomTextInput(
-                            title: "판매점명",
-                            controller: _retailerNameContr,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        constraints: const BoxConstraints(
-                          maxWidth: 200,
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) => CustomDropDownMenu(
-                            label: const Text("상태"),
-                            enableSearch: true,
-                            width: constraints.maxWidth,
-                            items: _statusesList.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                            selectedItem: _selectedStatusCode,
-                            onSelected: (selectedItem) {
-                              _selectedStatusCode = selectedItem;
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                      ),
-                      Container(
-                        constraints: const BoxConstraints(minWidth: 120),
-                        height: 47,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _fetchRetailers();
-                          },
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.search_outlined,
-                                color: Colors.white,
-                                size: 17,
+                ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _infoList.length + 2,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  "총 사용자: ",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  _totalCount.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Badge(
+                              alignment: Alignment.topLeft,
+                              isLabelVisible: _filterBadgeNumber != null,
+                              label: Text(_filterBadgeNumber.toString()),
+                              textStyle: const TextStyle(fontSize: 12),
+                              backgroundColor: Colors.redAccent,
+                              child: SizedBox(
+                                height: 30,
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    foregroundColor: MainUi.mainColor,
+                                    side: const BorderSide(color: MainUi.mainColor),
+                                  ),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      useRootNavigator: true,
+                                      builder: (context) => RetailersFilterContent(
+                                        statuses: _statusesList,
+                                        requestModel: _requestModel,
+                                        onApply: (requestModel) async {
+                                          setState(() {
+                                            _infoList.clear();
+                                            _currentPage = 1;
+                                            _requestModel = requestModel;
+                                            _filterBadgeNumber = _requestModel.countNonEmptyFields();
+                                          });
+
+                                          await Future.delayed(Duration.zero);
+                                          await _fetchData();
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('필터'),
+                                ),
                               ),
-                              SizedBox(width: 5),
-                              Text("검색"),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (index == _infoList.length + 1) {
+                      return _newDataLoading
+                          ? Align(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 50),
+                                height: 30,
+                                width: 30,
+                                child: const CircularProgressIndicator(),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    }
+
+                    // cards
+                    int rowIndex = index - 1;
+                    bool editable = false;
+
+                    Color statusColor = Colors.grey;
+                    if (_infoList[rowIndex].status == 'Y') statusColor = Colors.green;
+                    if (_infoList[rowIndex].status == 'N') statusColor = Colors.grey;
+
+                    if (_infoList[rowIndex].status == 'W') {
+                      statusColor = Colors.orange;
+                      editable = true;
+                    }
+
+                    return Container(
+                      color: Colors.grey.shade50,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "상태: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: !editable
+                                    ? null
+                                    : () {
+                                        showDialog(
+                                          barrierDismissible: true,
+                                          context: context,
+                                          builder: (context) => RetailerStatusUpdateContent(
+                                            items: _statusesList,
+                                            retailerCode: _infoList[rowIndex].partnerCd ?? "",
+                                            callBack: _fetchData,
+                                          ),
+                                        );
+                                      },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: statusColor,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        textAlign: TextAlign.right,
+                                        _infoList[rowIndex].statusNm ?? "",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      if (editable) const SizedBox(width: 5),
+                                      if (editable)
+                                        const Icon(
+                                          Icons.edit_outlined,
+                                          color: Colors.white,
+                                          size: 15,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
+                          ),
+                          const Gap(5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "만매점명: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  textAlign: TextAlign.right,
+                                  _infoList[rowIndex].partnerNm ?? "",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "대표자명: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  textAlign: TextAlign.right,
+                                  _infoList[rowIndex].contractor ?? "",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "연락처: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  textAlign: TextAlign.right,
+                                  _infoList[rowIndex].phoneNumber ?? "",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "사업자번호: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  textAlign: TextAlign.right,
+                                  _infoList[rowIndex].businessNum ?? "",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "계약일자: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  textAlign: TextAlign.right,
+                                  CustomFormat().formatDate(_infoList[rowIndex].contractDate) ?? "",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "상세정보: ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 30,
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
+                                    foregroundColor: MainUi.mainColor,
+                                    side: const BorderSide(color: MainUi.mainColor),
+                                  ),
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).clearSnackBars();
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => RetailerDetailsContent(id: _infoList[rowIndex].partnerCd ?? ""),
+                                    );
+                                  },
+                                  child: const Text('상세정보'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  child: Column(
+                    children: [
+                      InkWell(
+                        hoverColor: Colors.white54,
+                        borderRadius: BorderRadius.circular(50),
+                        onTap: () {
+                          // context.pop();
+                          scrollToBegin(_scrollController);
+                        },
+                        onHover: (value) {},
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            color: Colors.black38,
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: const Icon(
+                            Icons.arrow_upward,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const Gap(10),
+                      InkWell(
+                        hoverColor: Colors.white54,
+                        borderRadius: BorderRadius.circular(50),
+                        onTap: () {
+                          scrollToEnd(_scrollController);
+                        },
+                        onHover: (value) {},
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            color: Colors.black38,
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: const Icon(
+                            Icons.arrow_downward,
+                            color: Colors.white,
+                            size: 20,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Gap(20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Pagination(
-                    totalCount: _totalCount,
-                    onUpdated: (currentPage, perPage) async {
-                      if (currentPage != _currentPage || perPage != _perPage) {
-                        _currentPage = currentPage;
-                        _perPage = perPage;
-                        _fetchRetailers();
-                      }
-                    },
-                  ),
-                ),
-                const Gap(5),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => Scrollbar(
-                      controller: _horizontalScrolCntr,
-                      scrollbarOrientation: ScrollbarOrientation.top,
-                      child: SingleChildScrollView(
-                        controller: _horizontalScrolCntr,
-                        scrollDirection: Axis.horizontal,
-                        child: SingleChildScrollView(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                            constraints: BoxConstraints(
-                              minWidth: constraints.maxWidth - 50,
-                            ),
-                            child: DataTable(
-                              sortColumnIndex: _sortColumnIndex,
-                              sortAscending: _sortAscending,
-                              showCheckboxColumn: false,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade200),
-                              ),
-                              border: TableBorder.all(
-                                color: Colors.transparent, // Make border color transparent
-                                width: 0,
-                              ),
-                              headingRowHeight: 50,
-                              columnSpacing: 40,
-                              headingTextStyle: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              columns: List.generate(
-                                _columns.length,
-                                (index) {
-                                  return DataColumn(
-                                    onSort: (columnIndex, ascending) {
-                                      _sortAscending = ascending;
-                                      _sortColumnIndex = columnIndex;
-
-                                      void mysort<T>(Comparable<T> Function(RetailerModel model) getField) {
-                                        _retailersList.sort((a, b) {
-                                          final aValue = getField(a);
-                                          final bValue = getField(b);
-
-                                          return ascending ? Comparable.compare(aValue, bValue) : Comparable.compare(bValue, aValue);
-                                        });
-                                      }
-
-                                      // sorting table on tap on header
-                                      if (columnIndex == 0) mysort((model) => model.num ?? 0);
-                                      if (columnIndex == 1) mysort((model) => model.statusNm?.toLowerCase() ?? "");
-                                      if (columnIndex == 2) mysort((model) => model.partnerNm?.toLowerCase() ?? "");
-                                      if (columnIndex == 3) mysort((model) => model.contractor?.toLowerCase() ?? "");
-                                      if (columnIndex == 4) mysort((model) => model.phoneNumber?.toLowerCase() ?? "");
-                                      if (columnIndex == 5) mysort((model) => model.businessNum?.toLowerCase() ?? "");
-                                      if (columnIndex == 6) mysort((model) => model.applyDate ?? "");
-                                      if (columnIndex == 7) mysort((model) => model.contractDate ?? "");
-
-                                      setState(() {});
-                                    },
-                                    label: Text(_columns[index]),
-                                  );
-                                },
-                              ),
-                              rows: List.generate(
-                                _retailersList.length,
-                                (rowIndex) => DataRow(
-                                  // onSelectChanged: (value) {},
-
-                                  cells: List.generate(
-                                    _columns.length,
-                                    (columnIndex) {
-                                      if (columnIndex == 0) {
-                                        return DataCell(
-                                          Text(_retailersList[rowIndex].num.toString()),
-                                          onTap: () async {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 1) {
-                                        bool editable = false;
-
-                                        Color containerColor = Colors.grey;
-                                        if (_retailersList[rowIndex].status == 'Y') containerColor = Colors.green;
-                                        if (_retailersList[rowIndex].status == 'N') containerColor = Colors.grey;
-
-                                        if (_retailersList[rowIndex].status == 'W') {
-                                          containerColor = Colors.orange;
-                                          editable = true;
-                                        }
-
-                                        return DataCell(
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                            constraints: const BoxConstraints(minWidth: 80, maxWidth: 120),
-                                            decoration: BoxDecoration(
-                                              color: containerColor,
-                                              borderRadius: BorderRadius.circular(30),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Text(
-                                                  textAlign: TextAlign.center,
-                                                  _retailersList[rowIndex].statusNm ?? "",
-                                                  style: const TextStyle(color: Colors.white),
-                                                ),
-                                                if (editable)
-                                                  const Padding(
-                                                    padding: EdgeInsets.only(left: 3),
-                                                    child: Icon(
-                                                      Icons.edit_outlined,
-                                                      color: Colors.white,
-                                                      size: 15,
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            if (editable) {
-                                              showCustomDialog(
-                                                context: context,
-                                                content: RetailerStatusUpdateContent(
-                                                  selectedItem: _retailersList[rowIndex].status ?? "",
-                                                  items: _statusesList.where((i) => i.cd.isNotEmpty).map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                                                  reetailerCd: _retailersList[rowIndex].partnerCd ?? "",
-                                                  callBack: _fetchRetailers,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                        );
-                                      }
-
-                                      if (columnIndex == 2) {
-                                        return DataCell(
-                                          Container(
-                                            constraints: const BoxConstraints(maxWidth: 150),
-                                            child: Text(
-                                              _retailersList[rowIndex].partnerNm ?? "",
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 3) {
-                                        return DataCell(
-                                          Text(_retailersList[rowIndex].contractor ?? ""),
-                                          onTap: () {},
-                                        );
-                                      }
-                                      if (columnIndex == 4) {
-                                        return DataCell(
-                                          Container(
-                                            constraints: const BoxConstraints(maxWidth: 250),
-                                            child: Text(
-                                              _retailersList[rowIndex].phoneNumber ?? "",
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                            ),
-                                          ),
-                                          onTap: () {},
-                                        );
-                                      }
-                                      if (columnIndex == 5) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(_retailersList[rowIndex].businessNum ?? ""),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 6) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(CustomFormat().formatDateTime(_retailersList[rowIndex].applyDate) ?? ""),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 7) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          Text(CustomFormat().formatDateTime(_retailersList[rowIndex].contractDate) ?? ""),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      if (columnIndex == 8) {
-                                        return DataCell(
-                                          placeholder: false,
-                                          OutlinedButton(
-                                            onPressed: () {
-                                              showCustomDialog(
-                                                context: context,
-                                                content: RetailerDetailsContent(
-                                                  id: _retailersList[rowIndex].partnerCd ?? "",
-                                                ),
-                                              );
-                                            },
-                                            child: const Text('가입정보'),
-                                          ),
-                                          onTap: () {},
-                                        );
-                                      }
-
-                                      return DataCell(onTap: () {}, const SizedBox());
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
-          );
+    );
   }
 
-  Future<void> _fetchRetailers() async {
+  Future<void> _fetchData() async {
+    if (_currentPage == 1) _infoList.clear();
     try {
       final APIService apiService = APIService();
 
       var result = await apiService.fetchRetailers(
         context: context,
-        requestModel: {
-          "partner_nm": _retailerNameContr.text,
-          "status": _selectedStatusCode,
-          "currentPage": _currentPage,
-          "rowLimit": _perPage,
-        },
+        requestModel: _requestModel.copyWith(
+          currentPage: _currentPage,
+          rowLimit: 10,
+        ),
       );
 
       _totalCount = result.totalNum ?? 0;
+      _infoList.addAll(result.partnerList);
+      _statusesList = result.statusList;
+      _newDataLoading = false;
 
-      _statusesList.clear();
-      _statusesList.add(CodeValue(cd: "", value: '전체'));
-      _statusesList.addAll(result.statusList);
-
-      _retailersList = result.partnerList;
+      _dataLoading = false;
+      setState(() {});
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
-
-    _dataLoading = false;
-    setState(() {});
   }
 }

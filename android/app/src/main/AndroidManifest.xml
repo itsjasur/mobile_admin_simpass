@@ -1,4 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+     <queries>
+        <!-- If your app checks for call support -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+        <!-- Add other intents as needed for your app -->
+    </queries>
+
+    
     <application
         android:label="mobile_admin_simpass"
         android:name="${applicationName}"

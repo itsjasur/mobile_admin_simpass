@@ -15,9 +15,8 @@ class ApplicationStatusUpdateContent extends StatefulWidget {
   final List<CodeValue> items;
   final String applicationID;
   final Function? callBack;
-  final String selectedStatusCode;
 
-  const ApplicationStatusUpdateContent({super.key, required this.items, required this.applicationID, this.callBack, required this.selectedStatusCode});
+  const ApplicationStatusUpdateContent({super.key, required this.items, required this.applicationID, this.callBack});
 
   @override
   State<ApplicationStatusUpdateContent> createState() => _ApplicationStatusUpdateContentState();
@@ -35,7 +34,6 @@ class _ApplicationStatusUpdateContentState extends State<ApplicationStatusUpdate
   @override
   void initState() {
     super.initState();
-    _selectedStatusCode = widget.selectedStatusCode;
   }
 
   @override
@@ -46,88 +44,84 @@ class _ApplicationStatusUpdateContentState extends State<ApplicationStatusUpdate
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      child: SingleChildScrollView(
-        child: IntrinsicHeight(
-          child: Material(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Form(
-                key: _formKey,
-                child: Align(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        '상태 수정',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Gap(20),
-                      CustomDropDownMenu(
-                        label: const Text("상태"),
-                        enableSearch: true,
-                        items: widget.items.where((i) => i.cd.isNotEmpty).map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                        errorText: _statusErrorCode,
-                        selectedItem: _selectedStatusCode,
-                        onSelected: (selectedItem) {
-                          _selectedStatusCode = selectedItem;
-                          _statusErrorCode = null;
-                          setState(() {});
-                        },
-                      ),
-                      const Gap(20),
-                      if (_selectedStatusCode == 'Y')
-                        CustomTextInput(
-                          controller: _phoneNumberCnt,
-                          inputFormatters: [
-                            PhoneNumberFormatter(),
-                          ],
-                          maxlength: 13,
-                          title: '휴대전화',
-                          validator: InputValidator().validatePhoneNumber,
-                        ),
-                      const Gap(30),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.end,
-                          runSpacing: 20,
-                          spacing: 20,
-                          children: [
-                            Container(
-                              height: 50,
-                              constraints: const BoxConstraints(minWidth: 100),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey,
-                                ),
-                                onPressed: () {
-                                  context.pop();
-                                },
-                                child: const Text("취소"),
-                              ),
-                            ),
-                            Container(
-                              height: 50,
-                              constraints: const BoxConstraints(minWidth: 100),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(),
-                                onPressed: () {
-                                  _updateApplicationStatus();
-                                },
-                                child: _updating ? const ButtonCircularProgressIndicator() : const Text("저장"),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Form(
+            key: _formKey,
+            child: Align(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    '상태 수정',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
+                  const Gap(20),
+                  CustomDropDownMenu(
+                    label: const Text("상태"),
+                    enableSearch: true,
+                    items: widget.items.where((i) => i.cd.isNotEmpty).map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                    errorText: _statusErrorCode,
+                    selectedItem: _selectedStatusCode,
+                    onSelected: (selectedItem) {
+                      _selectedStatusCode = selectedItem;
+                      _statusErrorCode = null;
+                      setState(() {});
+                    },
+                  ),
+                  const Gap(20),
+                  if (_selectedStatusCode == 'Y')
+                    CustomTextInput(
+                      controller: _phoneNumberCnt,
+                      inputFormatters: [
+                        PhoneNumberFormatter(),
+                      ],
+                      maxlength: 13,
+                      title: '휴대전화',
+                      validator: InputValidator().validatePhoneNumber,
+                    ),
+                  const Gap(20),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      runSpacing: 20,
+                      spacing: 20,
+                      children: [
+                        Container(
+                          height: 50,
+                          constraints: const BoxConstraints(minWidth: 100),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                            ),
+                            onPressed: () {
+                              context.pop();
+                            },
+                            child: const Text("취소"),
+                          ),
+                        ),
+                        Container(
+                          height: 50,
+                          constraints: const BoxConstraints(minWidth: 100),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(),
+                            onPressed: () {
+                              _updateApplicationStatus();
+                            },
+                            child: _updating ? const ButtonCircularProgressIndicator() : const Text("저장"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -144,7 +138,7 @@ class _ApplicationStatusUpdateContentState extends State<ApplicationStatusUpdate
 
     if (_formKey.currentState!.validate() && _selectedStatusCode.isNotEmpty) {
       final APIService apiService = APIService();
-      var result = await apiService.updateApplicationStatus(
+      await apiService.updateApplicationStatus(
         context: context,
         requestModel: ApplicationStatusUpdatemodel(
           actNo: widget.applicationID,
@@ -153,10 +147,8 @@ class _ApplicationStatusUpdateContentState extends State<ApplicationStatusUpdate
         ),
       );
 
-      if (result) {
-        if (widget.callBack != null) widget.callBack!();
-        if (mounted) context.pop();
-      }
+      if (mounted) context.pop();
+      if (widget.callBack != null) widget.callBack!();
     }
 
     _updating = false;

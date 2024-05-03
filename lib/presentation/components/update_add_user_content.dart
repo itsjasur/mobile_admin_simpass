@@ -147,39 +147,27 @@ class _UpdateAddUserContentState extends State<UpdateAddUserContent> {
                         hidden: true,
                       ),
                     const Gap(30),
-                    LayoutBuilder(
-                      builder: (BuildContext context, BoxConstraints constraints) {
-                        //  use constraints.maxWidth as the parent's width here.
-                        return CustomDropDownMenu(
-                          label: const Text("국가"),
-                          errorText: _countryErrorText,
-                          enableSearch: true,
-                          onSelected: (selectedItem) {
-                            if (selectedItem != null) _selectedCountryCode = selectedItem;
-                            _countryErrorText = null;
-                            setState(() {});
-                          },
-                          width: constraints.maxWidth,
-                          items: _countries,
-                          selectedItem: _selectedCountryCode,
-                        );
+                    CustomDropDownMenu(
+                      label: const Text("국가"),
+                      errorText: _countryErrorText,
+                      enableSearch: true,
+                      onSelected: (selectedItem) {
+                        if (selectedItem != null) _selectedCountryCode = selectedItem;
+                        _countryErrorText = null;
+                        setState(() {});
                       },
+                      items: _countries,
+                      selectedItem: _selectedCountryCode,
                     ),
                     const Gap(30),
-                    LayoutBuilder(
-                      builder: (BuildContext context, BoxConstraints constraints) {
-                        //  use constraints.maxWidth as the parent's width here.
-                        return CustomDropDownMenu(
-                          label: const Text("상태"),
-                          enableSearch: true,
-                          onSelected: (selectedItem) {
-                            if (selectedItem != null) _selectedStatusCode = selectedItem;
-                          },
-                          width: constraints.maxWidth,
-                          items: _statuses,
-                          selectedItem: _selectedStatusCode,
-                        );
+                    CustomDropDownMenu(
+                      label: const Text("상태"),
+                      enableSearch: true,
+                      onSelected: (selectedItem) {
+                        if (selectedItem != null) _selectedStatusCode = selectedItem;
                       },
+                      items: _statuses,
+                      selectedItem: _selectedStatusCode,
                     ),
                     const Gap(30),
                     Wrap(
