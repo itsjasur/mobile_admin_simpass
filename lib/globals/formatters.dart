@@ -38,7 +38,11 @@ class CustomFormat {
   }
 
   String wonify(num? amount) {
-    if (amount == null || amount < 0) {
+    if (amount == null) {
+      return "";
+    }
+
+    if (amount < 0) {
       amount = 0;
     }
 

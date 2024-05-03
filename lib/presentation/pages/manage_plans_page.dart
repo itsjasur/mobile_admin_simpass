@@ -1,6 +1,7 @@
 import 'package:admin_simpass/data/api/api_service.dart';
 import 'package:admin_simpass/data/models/plans_model.dart';
 import 'package:admin_simpass/globals/controller_handler.dart';
+import 'package:admin_simpass/globals/formatters.dart';
 import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/presentation/components/plans_filter_content.dart';
 import 'package:admin_simpass/presentation/components/side_menu.dart';
@@ -81,6 +82,7 @@ class _ManagePlansPageState extends State<ManagePlansPage> {
             )
           : Stack(
               children: [
+                if (_infoList.isEmpty) Center(child: Text('목록이 비어 있습니다.')),
                 ListView.builder(
                   controller: _scrollController,
                   itemCount: _infoList.length + 2,
@@ -366,7 +368,7 @@ class _ManagePlansPageState extends State<ManagePlansPage> {
                               Expanded(
                                 child: Text(
                                   textAlign: TextAlign.right,
-                                  _infoList[rowIndex].basicFee.toString(),
+                                  CustomFormat().wonify(_infoList[rowIndex].basicFee),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
@@ -390,7 +392,7 @@ class _ManagePlansPageState extends State<ManagePlansPage> {
                               Expanded(
                                 child: Text(
                                   textAlign: TextAlign.right,
-                                  _infoList[rowIndex].salesFee.toString(),
+                                  CustomFormat().wonify(_infoList[rowIndex].salesFee),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(

@@ -81,6 +81,7 @@ class ApplicationsPageState extends State<ApplicationsPage> {
             )
           : Stack(
               children: [
+                if (_infoList.isEmpty) Center(child: Text('목록이 비어 있습니다.')),
                 ListView.builder(
                   controller: _scrollController,
                   itemCount: _infoList.length + 2,

@@ -67,7 +67,7 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("판매점 계약현황")),
+      appBar: AppBar(title: const Text("상담사 개통 문의현황")),
       drawer: const SideMenu(),
       body: _dataLoading
           ? Container(
@@ -78,6 +78,7 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
             )
           : Stack(
               children: [
+                if (_infoList.isEmpty) Center(child: Text('목록이 비어 있습니다.')),
                 ListView.builder(
                   controller: _scrollController,
                   itemCount: _infoList.length + 2,

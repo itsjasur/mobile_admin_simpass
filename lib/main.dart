@@ -65,6 +65,7 @@ class MyApp extends StatelessWidget {
           builders: {
             TargetPlatform.macOS: NoTransitionsBuilder(),
             TargetPlatform.windows: NoTransitionsBuilder(),
+            // TargetPlatform.android: CupertinoPageTransitionsBuilder(),
           },
         ),
 
@@ -75,14 +76,6 @@ class MyApp extends StatelessWidget {
           thickness: 0,
         ),
 
-        // datePickerTheme: const DatePickerThemeData(
-        //   backgroundColor: Colors.white,
-        //   surfaceTintColor: Colors.transparent,
-        //   rangePickerBackgroundColor: Colors.transparent,
-        //   rangePickerHeaderForegroundColor: Colors.transparent,
-        //   rangePickerHeaderBackgroundColor: Colors.transparent,
-        // ),
-
         timePickerTheme: const TimePickerThemeData(
           backgroundColor: Colors.white,
         ),
@@ -90,8 +83,6 @@ class MyApp extends StatelessWidget {
         bottomSheetTheme: const BottomSheetThemeData(
           surfaceTintColor: Colors.white,
           backgroundColor: Colors.white,
-          // modalBarrierColor: Colors.white,
-          // modalBackgroundColor: Colors.white,
           shadowColor: Colors.transparent,
           showDragHandle: true,
         ),
@@ -169,25 +160,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// class NoAnimationPageTransitionsBuilder extends PageTransitionsBuilder {
-//   const NoAnimationPageTransitionsBuilder();
-
-//   @override
-//   Widget buildTransitions<T>(
-//     PageRoute<T> route,
-//     BuildContext context,
-//     Animation<double> animation,
-//     Animation<double> secondaryAnimation,
-//     Widget child,
-//   ) {
-//     return child;
-//   }
-// }
-
 class NoTransitionsBuilder extends PageTransitionsBuilder {
   const NoTransitionsBuilder();
   @override
-  Widget buildTransitions<T>(PageRoute<T>? route, BuildContext? context, Animation<double> animation, Animation<double> secondaryAnimation, Widget? child) {
+  Widget buildTransitions<T>(
+    PageRoute<T>? route,
+    BuildContext? context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget? child,
+  ) {
     return child!;
   }
 }
