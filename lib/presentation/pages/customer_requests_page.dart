@@ -9,7 +9,6 @@ import 'package:admin_simpass/presentation/components/customer_request_filter_co
 import 'package:admin_simpass/presentation/components/customer_request_status_update_content.dart';
 import 'package:admin_simpass/presentation/components/side_menu.dart';
 import 'package:admin_simpass/presentation/components/text_launcher.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -78,7 +77,7 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
             )
           : Stack(
               children: [
-                if (_infoList.isEmpty) Center(child: Text('목록이 비어 있습니다.')),
+                if (_infoList.isEmpty) const Center(child: Text('목록이 비어 있습니다.')),
                 ListView.builder(
                   controller: _scrollController,
                   itemCount: _infoList.length + 2,

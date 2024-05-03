@@ -64,7 +64,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
             )
           : Stack(
               children: [
-                if (_infoList.isEmpty) Center(child: Text('목록이 비어 있습니다.')),
+                if (_infoList.isEmpty) const Center(child: Text('목록이 비어 있습니다.')),
                 ListView.builder(
                   controller: _scrollController,
                   itemCount: _infoList.length + 2,

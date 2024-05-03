@@ -1,6 +1,5 @@
 import 'package:admin_simpass/data/models/applications_model.dart';
 import 'package:admin_simpass/data/models/code_value_model.dart';
-import 'package:admin_simpass/data/models/plans_model.dart';
 import 'package:admin_simpass/globals/constants.dart';
 import 'package:admin_simpass/globals/formatters.dart';
 import 'package:admin_simpass/globals/validators.dart';

@@ -1,14 +1,9 @@
 import 'package:admin_simpass/data/api/api_service.dart';
-import 'package:admin_simpass/data/models/applications_model.dart';
-import 'package:admin_simpass/globals/formatters.dart';
-import 'package:admin_simpass/globals/validators.dart';
 import 'package:admin_simpass/presentation/components/button_circular_indicator.dart';
 import 'package:admin_simpass/presentation/components/custom_drop_down_menu.dart';
-import 'package:admin_simpass/presentation/components/custom_text_input.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../data/models/code_value_model.dart';
 
 class RetailerStatusUpdateContent extends StatefulWidget {
