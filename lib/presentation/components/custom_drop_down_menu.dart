@@ -34,7 +34,7 @@ class CustomDropDownMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownMenu(
-      width: width,
+      // width: width,
       menuHeight: menuHeight,
       enableSearch: enableSearch,
       enableFilter: enableFilter,

@@ -36,7 +36,7 @@ class _RetailersPageState extends State<RetailersPage> {
   int? _sortColumnIndex;
   bool _sortAscending = true;
 
-  List<PartnerModel> _retailersList = [];
+  List<RetailerModel> _retailersList = [];
   final List<CodeValue> _statusesList = [];
 
   @override
@@ -177,7 +177,7 @@ class _RetailersPageState extends State<RetailersPage> {
                                       _sortAscending = ascending;
                                       _sortColumnIndex = columnIndex;
 
-                                      void mysort<T>(Comparable<T> Function(PartnerModel model) getField) {
+                                      void mysort<T>(Comparable<T> Function(RetailerModel model) getField) {
                                         _retailersList.sort((a, b) {
                                           final aValue = getField(a);
                                           final bValue = getField(b);

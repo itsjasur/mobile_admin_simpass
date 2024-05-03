@@ -335,7 +335,6 @@ class APIService {
 
       response = await RequestHelper().post(context.mounted ? context : null, response, url, headers, body);
       var decodedResponse = json.decode(utf8.decode(response.bodyBytes));
-      // print(jsonEncode(decodedResponse));
 
       if (response.statusCode == 200 && decodedResponse['result'] == 'SUCCESS') {
         return ApplicationDetailsModel.fromJson(decodedResponse["data"]['act_detail_info']);
@@ -374,8 +373,6 @@ class APIService {
   }
 
   Future<List<String>> fetchApplicationForms({required BuildContext context, required String applicationId}) async {
-    ScaffoldMessenger.of(context).clearSnackBars();
-
     try {
       String? accessToken = await getAccessToken();
       headers['Authorization'] = 'Bearer $accessToken';
@@ -453,7 +450,7 @@ class APIService {
     return false;
   }
 
-  Future<PartnerModel> fetchRetailerDetails({required BuildContext context, required String retailerCode}) async {
+  Future<RetailerModel> fetchRetailerDetails({required BuildContext context, required String retailerCode}) async {
     try {
       String? accessToken = await getAccessToken();
       headers['Authorization'] = 'Bearer $accessToken';
@@ -465,7 +462,7 @@ class APIService {
       response = await RequestHelper().post(context.mounted ? context : null, response, url, headers, body);
       var decodedResponse = json.decode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 200 && decodedResponse['result'] == 'SUCCESS') {
-        return PartnerModel.fromJson(decodedResponse["data"]['partner_info']);
+        return RetailerModel.fromJson(decodedResponse["data"]['partner_info']);
       } else {
         throw decodedResponse['message'] ?? "Retailer details request data error";
       }

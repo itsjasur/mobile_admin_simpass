@@ -11,20 +11,12 @@ class ImageViewerContent extends StatefulWidget {
 }
 
 class _ImageViewerContentState extends State<ImageViewerContent> {
-  double _rotationAngle = 0.0; // Rotation angle in radians
   int? _currentIndex;
 
   @override
   void initState() {
     super.initState();
     if (widget.binaryImageList.isNotEmpty) _currentIndex = 0;
-  }
-
-  void _rotateImage() {
-    // incrementint the rotation angle by 90 degrees (in radians)
-    setState(() {
-      _rotationAngle += 90 * (3.141592653589793 / 180); // 90 degrees in radians
-    });
   }
 
   @override
@@ -38,17 +30,8 @@ class _ImageViewerContentState extends State<ImageViewerContent> {
           alignment: Alignment.center,
           children: [
             if (_currentIndex != null)
-              AspectRatio(
-                aspectRatio: 1,
-                child: Transform.rotate(
-                  angle: _rotationAngle,
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Image.memory(
-                      base64.decode(widget.binaryImageList[_currentIndex!]),
-                    ),
-                  ),
-                ),
+              Image.memory(
+                base64.decode(widget.binaryImageList[_currentIndex!]),
               ),
             if (_currentIndex == null)
               const Text(
@@ -136,31 +119,6 @@ class _ImageViewerContentState extends State<ImageViewerContent> {
                     padding: const EdgeInsets.all(15),
                     child: const Icon(
                       Icons.arrow_forward_ios,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  hoverColor: Colors.white54,
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: _rotateImage,
-                  onHover: (value) {},
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black12,
-                    ),
-                    padding: const EdgeInsets.all(15),
-                    child: const Icon(
-                      Icons.rotate_90_degrees_cw_outlined,
                       color: Colors.white,
                       size: 30,
                     ),

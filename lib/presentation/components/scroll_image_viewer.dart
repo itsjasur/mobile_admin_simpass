@@ -1,4 +1,5 @@
 import 'dart:convert'; // For base64Decode
+import 'package:admin_simpass/data/api/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -6,48 +7,56 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 
 class ScrollFormImageViewer extends StatefulWidget {
-  final List<String> binaryImageList;
-  const ScrollFormImageViewer({super.key, required this.binaryImageList});
+  final String applicationId;
+  const ScrollFormImageViewer({super.key, required this.applicationId});
 
   @override
   State<ScrollFormImageViewer> createState() => _ScrollFormImageViewerState();
 }
 
 class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
+  bool _dataLoading = true;
   bool _sendingToPrint = false;
+  List<String> _base64ImagesList = [];
+
   @override
   void initState() {
     super.initState();
+    _fetchApplicationImages();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black87,
-      body: Stack(
+    return Material(
+      color: Colors.black87,
+      child: Stack(
         children: [
-          Align(
-            child: _sendingToPrint
-                ? const CircularProgressIndicator()
-                : SizedBox(
-                    width: 1200,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(top: 10),
-                      itemCount: widget.binaryImageList.length,
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: Image.memory(
-                          base64.decode(widget.binaryImageList[index]),
+          _dataLoading
+              ? const Align(child: CircularProgressIndicator(color: Colors.white))
+              : _base64ImagesList.isEmpty
+                  ? const Align(
+                      child: Text('첨부파일을 찾을 수 없습니다', style: TextStyle(color: Colors.white)),
+                    )
+                  : Align(
+                      child: SizedBox(
+                        width: 1200,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(top: 10),
+                          itemCount: _base64ImagesList.length,
+                          itemBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Image.memory(
+                              base64.decode(_base64ImagesList[index]),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-          ),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Align(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.topRight,
               child: InkWell(
                 hoverColor: Colors.white54,
                 borderRadius: BorderRadius.circular(10),
@@ -70,41 +79,42 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Align(
-              alignment: Alignment.topRight,
-              child: InkWell(
-                hoverColor: Colors.white54,
-                borderRadius: BorderRadius.circular(10),
-                onTap: () async {
-                  setState(() {
-                    _sendingToPrint = true;
-                  });
-                  await Future.delayed(const Duration(milliseconds: 500));
+          if (_base64ImagesList.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: _sendingToPrint
+                    ? const CircularProgressIndicator()
+                    : InkWell(
+                        hoverColor: Colors.white54,
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () async {
+                          _sendingToPrint = true;
+                          setState(() {});
 
-                  _printPdf();
+                          await Future.delayed(const Duration(milliseconds: 50));
+                          await _printPdf();
 
-                  setState(() {
-                    _sendingToPrint = false;
-                  });
-                },
-                onHover: (value) {},
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38,
-                  ),
-                  padding: const EdgeInsets.all(15),
-                  child: const Icon(
-                    Icons.print,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
+                          _sendingToPrint = false;
+                          setState(() {});
+                        },
+                        onHover: (value) {},
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.black38,
+                          ),
+                          padding: const EdgeInsets.all(15),
+                          child: const Icon(
+                            Icons.print,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                      ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -116,7 +126,7 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
       version: PdfVersion.pdf_1_5,
     );
 
-    final decodedImages = widget.binaryImageList.map((e) => base64Decode(e)).toList();
+    final decodedImages = _base64ImagesList.map((e) => base64Decode(e)).toList();
 
     // Add compressed images to the PDF document
     for (final imageData in decodedImages) {
@@ -128,11 +138,7 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
             return pw.Center(
-              child: pw.Image(
-                image,
-                // height: 100,
-                // width: 100,
-              ),
+              child: pw.Image(image),
             );
           },
         ),
@@ -144,12 +150,27 @@ class _ScrollFormImageViewerState extends State<ScrollFormImageViewer> {
       onLayout: (_) async => await doc.save(),
     );
 
-    // final pdf = await rootBundle.load('pd.pdf');
-    // await Printing.layoutPdf(
-    //   format: PdfPageFormat.a4,
-    //   onLayout: (_) => pdf.buffer.asUint8List(),
-    // );
+    setState(() {});
+  }
 
+  Future<void> _fetchApplicationImages() async {
+    _dataLoading = true;
+    setState(() {});
+
+    _base64ImagesList.clear();
+
+    try {
+      final APIService apiService = APIService();
+      var result = await apiService.fetchApplicationForms(
+        context: context,
+        applicationId: widget.applicationId,
+      );
+      _base64ImagesList = result;
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+
+    _dataLoading = false;
     setState(() {});
   }
 }

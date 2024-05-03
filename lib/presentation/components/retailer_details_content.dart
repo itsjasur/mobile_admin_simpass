@@ -4,7 +4,6 @@ import 'package:admin_simpass/presentation/components/button_circular_indicator.
 import 'package:admin_simpass/presentation/components/custom_text_input.dart';
 import 'package:admin_simpass/presentation/components/image_viewer_content.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,7 +16,7 @@ class RetailerDetailsContent extends StatefulWidget {
 }
 
 class _RetailerDetailsContentState extends State<RetailerDetailsContent> {
-  PartnerModel? _details;
+  RetailerModel? _details;
   bool _loading = true;
   final List<bool> _imageLoading = [false, false, false, false];
 

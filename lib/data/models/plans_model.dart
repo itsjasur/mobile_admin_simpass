@@ -212,11 +212,6 @@ class ManagePlanSearchModel {
     );
   }
 
-  // Method to check if any of the specified fields are not empty
-  bool hasFilledFields() {
-    return agentCd.isNotEmpty || carrierCd.isNotEmpty || carrierPlanType.isNotEmpty || carrierType.isNotEmpty || mvnoCd.isNotEmpty || status.isNotEmpty;
-  }
-
   int? countNonEmptyFields() {
     List<String> fields = [
       usimPlanNm,

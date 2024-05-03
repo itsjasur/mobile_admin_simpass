@@ -1,25 +1,22 @@
 import 'package:admin_simpass/data/api/api_service.dart';
 import 'package:admin_simpass/data/models/applications_model.dart';
 import 'package:admin_simpass/data/models/code_value_model.dart';
+import 'package:admin_simpass/data/models/retailers_model.dart';
 import 'package:admin_simpass/globals/controller_handler.dart';
 import 'package:admin_simpass/globals/main_ui.dart';
-import 'package:admin_simpass/presentation/components/application_details_content.dart';
-import 'package:admin_simpass/presentation/components/application_status_update_content.dart';
 import 'package:admin_simpass/presentation/components/applications_filter_content.dart';
-import 'package:admin_simpass/presentation/components/scroll_image_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 
-class ApplicationsPage extends StatefulWidget {
-  const ApplicationsPage({super.key});
+class RetailersPageNew extends StatefulWidget {
+  const RetailersPageNew({super.key});
 
   @override
-  State<ApplicationsPage> createState() => ApplicationsPageState();
+  State<RetailersPageNew> createState() => RetailersPageNewState();
 }
 
-class ApplicationsPageState extends State<ApplicationsPage> {
-  final List<ApplicationModel> _infoList = [];
+class RetailersPageNewState extends State<RetailersPageNew> {
+  final List<RetailerModel> _infoList = [];
 
   int _totalCount = 0;
   int _currentPage = 1;
@@ -115,7 +112,7 @@ class ApplicationsPageState extends State<ApplicationsPage> {
                               height: 30,
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
+                                  padding: EdgeInsets.zero,
                                   foregroundColor: MainUi.mainColor,
                                   side: const BorderSide(color: MainUi.mainColor),
                                 ),
@@ -164,17 +161,15 @@ class ApplicationsPageState extends State<ApplicationsPage> {
 
                   // cards
                   int rowIndex = index - 1;
-                  bool editable = true;
+                  bool editable = false;
+
                   Color statusColor = Colors.grey;
-                  if (_infoList[rowIndex].usimActStatus == 'A') statusColor = Colors.blue;
-                  if (_infoList[rowIndex].usimActStatus == 'B') statusColor = Colors.green;
-                  if (_infoList[rowIndex].usimActStatus == 'P') statusColor = Colors.green;
-                  if (_infoList[rowIndex].usimActStatus == 'D') statusColor = Colors.red;
-                  if (_infoList[rowIndex].usimActStatus == 'W') statusColor = Colors.orange;
-                  if (_infoList[rowIndex].usimActStatus == 'C') statusColor = Colors.red;
-                  if (_infoList[rowIndex].usimActStatus == 'Y') {
-                    statusColor = Colors.grey;
-                    editable = false;
+                  if (_infoList[rowIndex].status == 'Y') statusColor = Colors.green;
+                  if (_infoList[rowIndex].status == 'N') statusColor = Colors.grey;
+
+                  if (_infoList[rowIndex].status == 'W') {
+                    statusColor = Colors.orange;
+                    editable = true;
                   }
 
                   return Container(
@@ -188,7 +183,37 @@ class ApplicationsPageState extends State<ApplicationsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "판매점영: ",
+                              "상태: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: statusColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                _infoList[rowIndex].statusNm ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Gap(5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "만매점명: ",
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.black87,
@@ -212,63 +237,7 @@ class ApplicationsPageState extends State<ApplicationsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "상태: ",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: !editable
-                                  ? null
-                                  : () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => ApplicationStatusUpdateContent(
-                                          items: _statusesList,
-                                          applicationID: _infoList[rowIndex].actNo ?? "",
-                                          selectedStatusCode: "",
-                                        ),
-                                      );
-                                    },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: statusColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      textAlign: TextAlign.right,
-                                      _infoList[rowIndex].usimActStatusNm ?? "",
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    if (editable) const SizedBox(width: 5),
-                                    if (editable)
-                                      const Icon(
-                                        Icons.edit_outlined,
-                                        color: Colors.white,
-                                        size: 15,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Gap(5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "접수번호: ",
+                              "대표자명: ",
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.black87,
@@ -277,7 +246,7 @@ class ApplicationsPageState extends State<ApplicationsPage> {
                             Expanded(
                               child: Text(
                                 textAlign: TextAlign.right,
-                                _infoList[rowIndex].num.toString(),
+                                _infoList[rowIndex].contractor ?? "",
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -292,31 +261,7 @@ class ApplicationsPageState extends State<ApplicationsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "고객명: ",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                textAlign: TextAlign.right,
-                                _infoList[rowIndex].name ?? "",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Gap(5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "후대펀: ",
+                              "연락처: ",
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.black87,
@@ -336,62 +281,27 @@ class ApplicationsPageState extends State<ApplicationsPage> {
                           ],
                         ),
                         const Gap(5),
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              "가입정보: ",
+                            Text(
+                              "연락처: ",
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.black87,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30,
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
-                                  foregroundColor: Colors.blueAccent,
-                                  side: const BorderSide(color: Colors.blueAccent),
-                                ),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => ApplicationDetailsContent(applicationId: _infoList[rowIndex].actNo ?? ""),
-                                  );
-                                },
-                                child: const Text('가입정보'),
                               ),
                             ),
                           ],
                         ),
                         const Gap(5),
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               "가입신청서: ",
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.black87,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30,
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
-                                  foregroundColor: MainUi.mainColor,
-                                  side: const BorderSide(color: MainUi.mainColor),
-                                ),
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).clearSnackBars();
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => ScrollFormImageViewer(applicationId: _infoList[rowIndex].actNo ?? ""),
-                                  );
-                                },
-                                child: const Text('가입신청서'),
                               ),
                             ),
                           ],
@@ -483,17 +393,20 @@ class ApplicationsPageState extends State<ApplicationsPage> {
     if (_currentPage == 1) _infoList.clear();
     try {
       final APIService apiService = APIService();
-      var result = await apiService.fetchApplications(
+
+      var result = await apiService.fetchRetailers(
         context: context,
-        requestModel: _requestModel.copyWith(
-          page: _currentPage,
-          rowLimit: 10,
-        ),
+        requestModel: {
+          "partner_nm": "",
+          "status": "",
+          "currentPage": _currentPage,
+          "rowLimit": 10,
+        },
       );
 
-      _totalCount = result.totalNum;
-      _infoList.addAll(result.applicationsList);
-      _statusesList = result.usimActStatusCodes;
+      _totalCount = result.totalNum ?? 0;
+      _infoList.addAll(result.partnerList);
+      _statusesList = result.statusList;
       _newDataLoading = false;
 
       _dataLoading = false;

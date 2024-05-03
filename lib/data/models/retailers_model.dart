@@ -3,7 +3,7 @@ import 'package:admin_simpass/data/models/code_value_model.dart';
 class RetailersModel {
   int? lastPage;
   int? totalNum;
-  List<PartnerModel> partnerList;
+  List<RetailerModel> partnerList;
   List<CodeValue> statusList;
   int? rowLimit;
   int? currentPage;
@@ -19,7 +19,7 @@ class RetailersModel {
 
   factory RetailersModel.fromJson(Map<String, dynamic> json) {
     var partnerList = json['partner_list'] as List;
-    List<PartnerModel> partners = partnerList.map((partner) => PartnerModel.fromJson(partner)).toList();
+    List<RetailerModel> partners = partnerList.map((partner) => RetailerModel.fromJson(partner)).toList();
 
     var statusList = json['status_list'] as List;
     List<CodeValue> statuses = statusList.map((status) => CodeValue.fromJson(status)).toList();
@@ -35,7 +35,7 @@ class RetailersModel {
   }
 }
 
-class PartnerModel {
+class RetailerModel {
   int? num;
   int? id;
   String? partnerCd;
@@ -85,7 +85,7 @@ class PartnerModel {
   String? shopInfo1Attach;
   String? shopInfo2Attach;
 
-  PartnerModel({
+  RetailerModel({
     this.num,
     this.id,
     this.partnerCd,
@@ -136,8 +136,8 @@ class PartnerModel {
     this.shopInfo2Attach,
   });
 
-  factory PartnerModel.fromJson(Map<String, dynamic> json) {
-    return PartnerModel(
+  factory RetailerModel.fromJson(Map<String, dynamic> json) {
+    return RetailerModel(
       num: json['num'],
       id: json['id'],
       partnerCd: json['partner_cd'],

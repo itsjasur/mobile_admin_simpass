@@ -66,201 +66,205 @@ class _ManagePlansFilterContentState extends State<ManagePlansFilterContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "데이터 필터링",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Gap(20),
-                  CustomTextInput(
-                    controller: _searchTextController,
-                    title: '요금제명',
-                  ),
-                  const Gap(20),
-                  LayoutBuilder(
-                    builder: (context, constraints) => CustomDropDownMenu(
-                      label: const Text("통신사"),
-                      enableSearch: true,
-                      items: _carriers.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                      onSelected: (selectedItem) {
-                        _selectedCarrierCode = selectedItem;
-                      },
-                      width: constraints.maxWidth,
-                      selectedItem: _selectedCarrierCode,
-                    ),
-                  ),
-                  const Gap(30),
-                  LayoutBuilder(
-                    builder: (context, constraints) => CustomDropDownMenu(
-                      label: const Text("브랜드"),
-                      enableSearch: true,
-                      onSelected: (selectedItem) {
-                        _selectedMvnoCode = selectedItem;
-                      },
-                      items: _mvnos.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                      width: constraints.maxWidth,
-                      selectedItem: _selectedMvnoCode,
-                    ),
-                  ),
-                  const Gap(30),
-                  LayoutBuilder(
-                    builder: (context, constraints) => CustomDropDownMenu(
-                      label: const Text("대리점"),
-                      enableSearch: true,
-                      onSelected: (selectedItem) {
-                        _selectedAgentCode = selectedItem;
-                      },
-                      items: _agents.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                      width: constraints.maxWidth,
-                      selectedItem: _selectedAgentCode,
-                    ),
-                  ),
-                  const Gap(30),
-                  LayoutBuilder(
-                    builder: (context, constraints) => CustomDropDownMenu(
-                      label: const Text("서비스 유형"),
-                      enableSearch: true,
-                      onSelected: (selectedItem) {
-                        _selectedPlanTypeCode = selectedItem;
-                      },
-                      items: _planTypes.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                      width: constraints.maxWidth,
-                      selectedItem: _selectedPlanTypeCode,
-                    ),
-                  ),
-                  const Gap(30),
-                  LayoutBuilder(
-                    builder: (context, constraints) => CustomDropDownMenu(
-                      label: const Text("가입대상"),
-                      enableSearch: true,
-                      onSelected: (selectedItem) {
-                        _selectedSubscriberTargetCode = selectedItem;
-                      },
-                      items: _subscriberTarget.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                      width: constraints.maxWidth,
-                      selectedItem: _selectedSubscriberTargetCode,
-                    ),
-                  ),
-                  const Gap(30),
-                  LayoutBuilder(
-                    builder: (context, constraints) => CustomDropDownMenu(
-                      label: const Text("상태"),
-                      enableSearch: true,
-                      onSelected: (selectedItem) {
-                        _selectedStatusCode = selectedItem;
-                      },
-                      items: _statuses.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
-                      width: constraints.maxWidth,
-                      selectedItem: _selectedStatusCode,
-                    ),
-                  ),
-                  const Gap(40),
-                  Row(
+    return IntrinsicHeight(
+      child: Align(
+        child: Material(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Container(
-                          constraints: const BoxConstraints(minWidth: 100),
-                          height: 50,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueGrey,
-                            ),
-                            onPressed: () {
-                              if (widget.onApply != null) {
-                                widget.onApply!(
-                                  ManagePlanSearchModel(
-                                    usimPlanNm: '',
-                                    carrierCd: "",
-                                    mvnoCd: "",
-                                    agentCd: "",
-                                    carrierPlanType: "",
-                                    carrierType: "",
-                                    status: "",
-                                    page: 1,
-                                    rowLimit: 10,
-                                  ),
-                                );
-                              }
-
-                              context.pop();
-                            },
-                            child: const Text("초기화"),
-                          ),
+                      const Text(
+                        "데이터 필터링",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const Gap(20),
-                      Expanded(
-                        child: Container(
-                          constraints: const BoxConstraints(minWidth: 100),
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (widget.onApply != null) {
-                                widget.onApply!(
-                                  ManagePlanSearchModel(
-                                    usimPlanNm: _searchTextController.text,
-                                    carrierCd: _selectedCarrierCode,
-                                    mvnoCd: _selectedMvnoCode,
-                                    agentCd: _selectedAgentCode,
-                                    carrierPlanType: _selectedSubscriberTargetCode,
-                                    carrierType: _selectedPlanTypeCode,
-                                    status: _selectedStatusCode,
-                                    page: 1,
-                                    rowLimit: 10,
-                                  ),
-                                );
-                              }
-
-                              context.pop();
-                            },
-                            child: const Text("검색"),
-                          ),
+                      CustomTextInput(
+                        controller: _searchTextController,
+                        title: '요금제명',
+                      ),
+                      const Gap(20),
+                      LayoutBuilder(
+                        builder: (context, constraints) => CustomDropDownMenu(
+                          label: const Text("통신사"),
+                          enableSearch: true,
+                          items: _carriers.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                          onSelected: (selectedItem) {
+                            _selectedCarrierCode = selectedItem;
+                          },
+                          width: constraints.maxWidth,
+                          selectedItem: _selectedCarrierCode,
                         ),
                       ),
+                      const Gap(30),
+                      LayoutBuilder(
+                        builder: (context, constraints) => CustomDropDownMenu(
+                          label: const Text("브랜드"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedMvnoCode = selectedItem;
+                          },
+                          items: _mvnos.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                          width: constraints.maxWidth,
+                          selectedItem: _selectedMvnoCode,
+                        ),
+                      ),
+                      const Gap(30),
+                      LayoutBuilder(
+                        builder: (context, constraints) => CustomDropDownMenu(
+                          label: const Text("대리점"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedAgentCode = selectedItem;
+                          },
+                          items: _agents.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                          width: constraints.maxWidth,
+                          selectedItem: _selectedAgentCode,
+                        ),
+                      ),
+                      const Gap(30),
+                      LayoutBuilder(
+                        builder: (context, constraints) => CustomDropDownMenu(
+                          label: const Text("서비스 유형"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedPlanTypeCode = selectedItem;
+                          },
+                          items: _planTypes.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                          width: constraints.maxWidth,
+                          selectedItem: _selectedPlanTypeCode,
+                        ),
+                      ),
+                      const Gap(30),
+                      LayoutBuilder(
+                        builder: (context, constraints) => CustomDropDownMenu(
+                          label: const Text("가입대상"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedSubscriberTargetCode = selectedItem;
+                          },
+                          items: _subscriberTarget.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                          width: constraints.maxWidth,
+                          selectedItem: _selectedSubscriberTargetCode,
+                        ),
+                      ),
+                      const Gap(30),
+                      LayoutBuilder(
+                        builder: (context, constraints) => CustomDropDownMenu(
+                          label: const Text("상태"),
+                          enableSearch: true,
+                          onSelected: (selectedItem) {
+                            _selectedStatusCode = selectedItem;
+                          },
+                          items: _statuses.map((e) => DropdownMenuEntry(value: e.cd, label: e.value)).toList(),
+                          width: constraints.maxWidth,
+                          selectedItem: _selectedStatusCode,
+                        ),
+                      ),
+                      const Gap(40),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              constraints: const BoxConstraints(minWidth: 100),
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueGrey,
+                                ),
+                                onPressed: () {
+                                  if (widget.onApply != null) {
+                                    widget.onApply!(
+                                      ManagePlanSearchModel(
+                                        usimPlanNm: '',
+                                        carrierCd: "",
+                                        mvnoCd: "",
+                                        agentCd: "",
+                                        carrierPlanType: "",
+                                        carrierType: "",
+                                        status: "",
+                                        page: 1,
+                                        rowLimit: 10,
+                                      ),
+                                    );
+                                  }
+
+                                  context.pop();
+                                },
+                                child: const Text("초기화"),
+                              ),
+                            ),
+                          ),
+                          const Gap(20),
+                          Expanded(
+                            child: Container(
+                              constraints: const BoxConstraints(minWidth: 100),
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (widget.onApply != null) {
+                                    widget.onApply!(
+                                      ManagePlanSearchModel(
+                                        usimPlanNm: _searchTextController.text,
+                                        carrierCd: _selectedCarrierCode,
+                                        mvnoCd: _selectedMvnoCode,
+                                        agentCd: _selectedAgentCode,
+                                        carrierPlanType: _selectedSubscriberTargetCode,
+                                        carrierType: _selectedPlanTypeCode,
+                                        status: _selectedStatusCode,
+                                        page: 1,
+                                        rowLimit: 10,
+                                      ),
+                                    );
+                                  }
+
+                                  context.pop();
+                                },
+                                child: const Text("검색"),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(20),
                     ],
                   ),
-                  const Gap(20),
-                ],
+                ),
               ),
-            ),
-          ),
-          Positioned(
-            top: 10,
-            right: 10,
-            child: InkWell(
-              hoverColor: Colors.white54,
-              borderRadius: BorderRadius.circular(50),
-              onTap: () {
-                context.pop();
-              },
-              onHover: (value) {},
-              child: Container(
-                decoration: BoxDecoration(
+              Positioned(
+                top: 10,
+                right: 10,
+                child: InkWell(
+                  hoverColor: Colors.white54,
                   borderRadius: BorderRadius.circular(50),
-                  color: Colors.black12,
-                ),
-                padding: const EdgeInsets.all(10),
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 20,
+                  onTap: () {
+                    context.pop();
+                  },
+                  onHover: (value) {},
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.black12,
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

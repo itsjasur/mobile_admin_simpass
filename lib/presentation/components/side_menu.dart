@@ -35,8 +35,8 @@ class SideMenu extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () {
-                          context.go('/profile');
-                          shellScaffoldKey.currentState?.closeDrawer();
+                          // context.go('/profile');
+                          // shellScaffoldKey.currentState?.closeDrawer();
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),

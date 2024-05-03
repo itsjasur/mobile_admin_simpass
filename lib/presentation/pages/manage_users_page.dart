@@ -1,6 +1,7 @@
 import 'package:admin_simpass/data/api/api_service.dart';
 import 'package:admin_simpass/data/models/user_model.dart';
 import 'package:admin_simpass/globals/constants.dart';
+import 'package:admin_simpass/globals/controller_handler.dart';
 import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/presentation/components/custom_alert_dialog.dart';
 import 'package:admin_simpass/presentation/components/update_add_user_content.dart';
@@ -30,7 +31,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
 
     _scrollController.addListener(() async {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-        if (_infoList.length <= _totalCount && !_newDataLoading) {
+        if (_infoList.length < _totalCount && !_newDataLoading) {
           _currentPage++;
           _newDataLoading = true;
           setState(() {});
@@ -318,7 +319,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                       borderRadius: BorderRadius.circular(50),
                       onTap: () {
                         // context.pop();
-                        scrollToBegin();
+                        scrollToBegin(_scrollController);
                       },
                       onHover: (value) {},
                       child: Container(
@@ -339,7 +340,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                       hoverColor: Colors.white54,
                       borderRadius: BorderRadius.circular(50),
                       onTap: () {
-                        scrollToEnd();
+                        scrollToEnd(_scrollController);
                       },
                       onHover: (value) {},
                       child: Container(
@@ -360,23 +361,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
               ),
             ],
           );
-  } //going back to the scroll begining
-
-  void scrollToBegin() {
-    _scrollController.animateTo(
-      _scrollController.position.minScrollExtent,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  //going back to the scroll begining
-  void scrollToEnd() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    );
   }
 
   Future<void> _fetchData() async {

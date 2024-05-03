@@ -119,15 +119,15 @@ class ApplicationModel {
 }
 
 class ApplicationsRequestModel {
-  final String actNo;
-  final String partnerCd;
-  final String usimActStatus;
-  final String applyFrDate;
-  final String applyToDate;
-  final String actFrDate;
-  final String actToDate;
-  final int page;
-  final int rowLimit;
+  String actNo;
+  String partnerCd;
+  String usimActStatus;
+  String applyFrDate;
+  String applyToDate;
+  String actFrDate;
+  String actToDate;
+  int page;
+  int rowLimit;
 
   ApplicationsRequestModel({
     this.actNo = "",
@@ -140,6 +140,44 @@ class ApplicationsRequestModel {
     required this.page,
     required this.rowLimit,
   });
+
+  ApplicationsRequestModel copyWith({
+    String? actNo,
+    String? partnerCd,
+    String? usimActStatus,
+    String? applyFrDate,
+    String? applyToDate,
+    String? actFrDate,
+    String? actToDate,
+    int? page,
+    int? rowLimit,
+  }) {
+    return ApplicationsRequestModel(
+      page: page ?? this.page,
+      rowLimit: rowLimit ?? this.rowLimit,
+      actNo: actNo ?? this.actNo,
+      partnerCd: partnerCd ?? this.partnerCd,
+      usimActStatus: usimActStatus ?? this.usimActStatus,
+      applyFrDate: applyFrDate ?? this.applyFrDate,
+      applyToDate: applyToDate ?? this.applyToDate,
+      actFrDate: actFrDate ?? this.actFrDate,
+      actToDate: actToDate ?? this.actToDate,
+    );
+  }
+
+  int? countNonEmptyFields() {
+    List<String> fields = [
+      actNo,
+      partnerCd,
+      usimActStatus,
+      applyFrDate,
+      applyToDate,
+      actFrDate,
+      actToDate,
+    ];
+    int count = fields.fold(0, (int sum, String field) => sum + (field.isNotEmpty ? 1 : 0));
+    return count == 0 ? null : count;
+  }
 
   // Method to convert the instance back to json
   Map<String, dynamic> toJson() {
@@ -234,7 +272,7 @@ class ApplicationDetailsModel {
   final String? usimNo;
   final String? usimFeeCd;
   final String? usimFeeNm;
-  final int? usimFee;
+  final String? usimFee;
   final String? dataBlock;
   final String? dataRomingBlock;
   final String? phoneBillBlock;

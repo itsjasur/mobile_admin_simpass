@@ -2,6 +2,7 @@ import 'package:admin_simpass/globals/constants.dart';
 import 'package:admin_simpass/presentation/components/scroll_image_viewer.dart';
 import 'package:admin_simpass/presentation/components/test.dart';
 import 'package:admin_simpass/presentation/pages/applications_page.dart';
+import 'package:admin_simpass/presentation/pages/applications_page.dart';
 import 'package:admin_simpass/presentation/pages/customer_requests_page.dart';
 import 'package:admin_simpass/presentation/pages/empty_page.dart';
 import 'package:admin_simpass/presentation/pages/manage_plans_page.dart';
@@ -12,6 +13,7 @@ import 'package:admin_simpass/presentation/pages/login_page.dart';
 import 'package:admin_simpass/presentation/pages/not_found_page.dart';
 import 'package:admin_simpass/presentation/pages/profile_page.dart';
 import 'package:admin_simpass/presentation/pages/retailers_page.dart';
+import 'package:admin_simpass/presentation/pages/retailers_page_new.dart';
 import 'package:admin_simpass/presentation/pages/signup_page.dart';
 import 'package:admin_simpass/providers/auth_provider.dart';
 import 'package:admin_simpass/providers/menu_navigation_provider.dart';
@@ -21,13 +23,13 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/manage-plans',
+  initialLocation: '/applications',
   errorBuilder: (context, state) => const NotFoundPage(),
   routes: [
     GoRoute(
       name: 'test',
       path: '/',
-      builder: (context, state) => const ScrollFormImageViewer(binaryImageList: applyformlists),
+      builder: (context, state) => const ScrollFormImageViewer(applicationId: ""),
     ),
     GoRoute(
       name: 'login',
@@ -59,7 +61,7 @@ final appRouter = GoRouter(
         GoRoute(
           name: 'manager-plans',
           path: '/manage-plans',
-          builder: (context, state) => const ManagePlansPageNew(),
+          builder: (context, state) => const ManagePlansPage(),
         ),
         GoRoute(
           name: 'applications',
@@ -69,7 +71,7 @@ final appRouter = GoRouter(
         GoRoute(
           name: 'retailers',
           path: '/retailers',
-          builder: (context, state) => const RetailersPage(),
+          builder: (context, state) => const RetailersPageNew(),
         ),
         GoRoute(
           name: 'customer-requests',
