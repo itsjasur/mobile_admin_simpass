@@ -202,7 +202,7 @@ class RetailersRequestModel {
     return {
       "partner_nm": partnerName,
       "status": status,
-      "currentPage": currentPage,
+      "page": currentPage,
       "rowLimit": rowLimit,
     };
   }

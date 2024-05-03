@@ -105,7 +105,7 @@ class CustomerRequestFetchModel {
       "country_cd": countryCode,
       "status": status,
       "name": name,
-      "currentPage": currentPage,
+      "page": currentPage,
       "rowLimit": rowLimit,
     };
   }

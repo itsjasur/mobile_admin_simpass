@@ -152,7 +152,7 @@ class MyApp extends StatelessWidget {
 
         snackBarTheme: const SnackBarThemeData(
           behavior: SnackBarBehavior.floating,
-          width: 400,
+          insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
       ),
       // home: const HomePage(),

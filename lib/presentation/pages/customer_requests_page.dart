@@ -133,6 +133,7 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
                                             _infoList.clear();
                                             _currentPage = 1;
                                             _requestModel = requestModel;
+
                                             _filterBadgeNumber = _requestModel.countNonEmptyFields();
                                           });
 
@@ -479,7 +480,10 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
   }
 
   Future<void> _fetchData() async {
+    print(_requestModel.copyWith(currentPage: _currentPage).toJson());
+
     if (_currentPage == 1) _infoList.clear();
+
     try {
       final APIService apiService = APIService();
 
@@ -487,7 +491,6 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
         context: context,
         requestModel: _requestModel.copyWith(
           currentPage: _currentPage,
-          rowLimit: 10,
         ),
       );
 
@@ -496,8 +499,8 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
       _statusesList = result.statusList ?? [];
       _countries = result.countryList ?? [];
       _newDataLoading = false;
-
       _dataLoading = false;
+
       setState(() {});
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

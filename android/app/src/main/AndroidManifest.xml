@@ -9,9 +9,10 @@
         <!-- Add other intents as needed for your app -->
     </queries>
 
-    
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:label="mobile_admin_simpass"
+        android:label="Simpass Admin"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
