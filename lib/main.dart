@@ -1,19 +1,89 @@
+import 'dart:convert';
 import 'package:admin_simpass/globals/global_keys.dart';
-
 import 'package:admin_simpass/providers/auth_provider.dart';
 import 'package:admin_simpass/providers/myinfo_provider.dart';
 import 'package:admin_simpass/providers/menu_navigation_provider.dart';
-
 import 'package:admin_simpass/globals/main_ui.dart';
 import 'package:admin_simpass/router/routes.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setPathUrlStrategy();
+
+  await Firebase.initializeApp();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  //REQUESTING PERMISSION
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    // print(await FirebaseMessaging.instance.getToken());
+  }
+
+  //HANDLING FOREGROUND LOCAL NOTIFICATIONS
+  var initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+
+  flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (details) {
+      if (details.payload != null) {
+        print("handling foreground notification" + jsonDecode(details.payload!));
+      }
+    },
+  );
+
+  //THIS SHOWS LOCAL NOTIFICATIONS WHEN APP IS IN FOREGROUND
+  Future<void> showNotification(RemoteMessage message) async {
+    var androidDetails = const AndroidNotificationDetails(
+      'simpass_channel_id',
+      'Simpass Important Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    var generalNotificationDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      message.notification!.title ?? "Simpass",
+      message.notification!.body ?? "Simpass",
+      payload: jsonEncode(message.data),
+      generalNotificationDetails,
+    );
+  }
+
+  //LISTENING TO FOREGROUNG NOTIFICATIONS
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    if (message.notification != null) {
+      await showNotification(message);
+    }
+  });
+
+  //HANDLING BACKGROUND/TERMINATED NOTIFICATIONS
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(MultiProvider(
     providers: [

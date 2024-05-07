@@ -6,6 +6,7 @@ import 'package:admin_simpass/providers/menu_navigation_provider.dart';
 import 'package:admin_simpass/providers/myinfo_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_simpass/presentation/components/side_menu_tile.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,27 @@ class SideMenu extends StatelessWidget {
                     shrinkWrap: true,
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
+                          FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+                          Future<void> showNotification() async {
+                            var androidDetails = const AndroidNotificationDetails(
+                              'channelId',
+                              'channelName',
+                              importance: Importance.max,
+                              priority: Priority.high,
+                            );
+
+                            var generalNotificationDetails = NotificationDetails(android: androidDetails);
+                            await flutterLocalNotificationsPlugin.show(
+                              0,
+                              'Test Title',
+                              'This is the Notification Body',
+                              generalNotificationDetails,
+                            );
+                          }
+
+                          showNotification();
                           // context.go('/profile');
                         },
                         child: Container(

@@ -480,8 +480,6 @@ class CustomerRequestsPageState extends State<CustomerRequestsPage> {
   }
 
   Future<void> _fetchData() async {
-    print(_requestModel.copyWith(currentPage: _currentPage).toJson());
-
     if (_currentPage == 1) _infoList.clear();
 
     try {
